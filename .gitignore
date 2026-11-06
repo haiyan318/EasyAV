@@ -1,0 +1,18 @@
+# Build outputs
+Debug/
+Release/
+*.exe
+*.pdb
+*.ilk
+*.idb
+*.obj
+*.log
+*.tlog
+
+# Visual Studio local files
+.vs/
+*.user
+*.suo
+
+# ImGui runtime state
+imgui.ini
