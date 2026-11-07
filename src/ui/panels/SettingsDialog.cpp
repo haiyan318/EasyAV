@@ -17,7 +17,7 @@ namespace easyav::ui
             const UiColors& c = Colors();
 
             ImGui::TextUnformatted("输出位置");
-            ImGui::Checkbox("保存在原文件旁边", &output.sameAsSource);
+            CheckRow("保存在原文件旁边", &output.sameAsSource);
 
             if (output.sameAsSource)
             {
@@ -33,8 +33,8 @@ namespace easyav::ui
                     model.Ui().requestPickOutputDir = true;
             }
 
-            ImGui::Dummy(ImVec2(0.0f, S(4.0f)));
-            ImGui::Checkbox("按结果自动命名（推荐）", &output.autoSuffix);
+            ImGui::Dummy(ImVec2(0.0f, S(2.0f)));
+            CheckRow("按结果自动命名（推荐）", &output.autoSuffix);
             if (output.autoSuffix)
             {
                 Hint("会自动使用 _H264 / _H265 / _音频 后缀，避免不同结果互相覆盖。");
@@ -50,7 +50,7 @@ namespace easyav::ui
             }
 
             ImGui::Dummy(ImVec2(0.0f, S(2.0f)));
-            ImGui::Checkbox("处理完成后打开输出文件夹", &output.openFolderWhenDone);
+            CheckRow("处理完成后打开输出文件夹", &output.openFolderWhenDone);
         }
     }
 
@@ -83,15 +83,11 @@ namespace easyav::ui
         ImGui::Separator();
         ImGui::TextUnformatted("界面");
         bool dark = model.Ui().darkTheme;
-        if (ImGui::Checkbox("深色界面", &dark))
+        if (CheckRow("深色界面", &dark, "夜间使用更护眼。"))
         {
             model.Ui().darkTheme = dark;
             ApplyTheme(dark);
         }
-        ImGui::SameLine(0.0f, S(12.0f));
-        ImGui::PushStyleColor(ImGuiCol_Text, c.textMuted);
-        ImGui::TextUnformatted("夜间使用更护眼。");
-        ImGui::PopStyleColor();
 
         ImGui::Separator();
         ImGui::TextUnformatted("关于 EasyAV");

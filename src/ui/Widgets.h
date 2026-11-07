@@ -39,6 +39,10 @@ namespace easyav::ui
 
     bool ToggleSwitch(const char* label, bool* value);
 
+    // 整行可点击的复选框：18px 方框 + 标签，选中时主色实心、白色对勾。
+    // hint 非空时在行尾右对齐显示（空间不足则省略）。
+    bool CheckRow(const char* label, bool* value, const char* hint = nullptr);
+
     void CardBegin(const char* id, const ImVec2& size, const ImVec2& padding = ImVec2(16.0f, 16.0f));
     void CardEnd();
 

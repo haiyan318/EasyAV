@@ -14,7 +14,8 @@ namespace easyav::ui
 
         ImGui::PushStyleColor(ImGuiCol_ChildBg, c.panel);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(S(18.0f), 0.0f));
-        ImGui::BeginChild("##topbar", ImVec2(0.0f, S(76.0f)), ImGuiChildFlags_None,
+        ImGui::BeginChild("##topbar", ImVec2(0.0f, S(76.0f)),
+                          ImGuiChildFlags_AlwaysUseWindowPadding,
                           ImGuiWindowFlags_NoScrollbar);
 
         const ImVec2 origin = ImGui::GetCursorScreenPos();

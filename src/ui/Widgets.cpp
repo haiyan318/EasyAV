@@ -203,6 +203,84 @@ namespace easyav::ui
         return changed;
     }
 
+    bool CheckRow(const char* label, bool* value, const char* hint)
+    {
+        const UiColors& c = Colors();
+        const float base = ImGui::GetFontSize();
+        const float height = S(30.0f);
+        const float width = ImGui::GetContentRegionAvail().x;
+
+        ImGui::PushID(label);
+        const ImVec2 origin = ImGui::GetCursorScreenPos();
+        ImGui::InvisibleButton("##check_row", ImVec2(width, height));
+
+        const bool hovered = ImGui::IsItemHovered();
+        const bool clicked = ImGui::IsItemClicked();
+        if (hovered)
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        if (clicked)
+            *value = !*value;
+
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+        const ImVec2 max(origin.x + width, origin.y + height);
+        if (hovered)
+            drawList->AddRectFilled(origin, max, ImGui::GetColorU32(c.panelHover), S(4.0f));
+
+        const float boxSize = S(18.0f);
+        const float boxRounding = S(4.0f);
+        const ImVec2 boxMin(origin.x + S(4.0f), origin.y + (height - boxSize) * 0.5f);
+        const ImVec2 boxMax(boxMin.x + boxSize, boxMin.y + boxSize);
+
+        if (*value)
+        {
+            drawList->AddRectFilled(boxMin, boxMax,
+                                    ImGui::GetColorU32(hovered ? c.accentHover : c.accent),
+                                    boxRounding);
+            drawList->AddRect(boxMin, boxMax, ImGui::GetColorU32(c.accentActive),
+                              boxRounding, 0, 1.0f);
+
+            const ImVec2 center((boxMin.x + boxMax.x) * 0.5f,
+                                (boxMin.y + boxMax.y) * 0.5f);
+            drawList->AddLine(ImVec2(center.x - S(4.0f), center.y),
+                              ImVec2(center.x - S(1.0f), center.y + S(3.0f)),
+                              ImGui::GetColorU32(c.white), S(1.8f));
+            drawList->AddLine(ImVec2(center.x - S(1.0f), center.y + S(3.0f)),
+                              ImVec2(center.x + S(4.5f), center.y - S(3.5f)),
+                              ImGui::GetColorU32(c.white), S(1.8f));
+        }
+        else
+        {
+            drawList->AddRectFilled(boxMin, boxMax, ImGui::GetColorU32(c.panelAlt),
+                                    boxRounding);
+            drawList->AddRect(boxMin, boxMax,
+                              ImGui::GetColorU32(hovered ? c.accent : c.border),
+                              boxRounding, 0, 1.0f);
+        }
+
+        const ImVec2 textSize = ImGui::CalcTextSize(label);
+        const float labelX = boxMax.x + S(12.0f);
+        drawList->AddText(ImGui::GetFont(), base,
+                          ImVec2(labelX, origin.y + (height - textSize.y) * 0.5f),
+                          ImGui::GetColorU32(c.text), label);
+
+        if (hint && hint[0] != '\0')
+        {
+            const float hintFont = base * 0.78f;
+            const ImVec2 hintSize =
+                ImGui::GetFont()->CalcTextSizeA(hintFont, FLT_MAX, 0.0f, hint);
+            const float hintX = max.x - hintSize.x - S(4.0f);
+            if (hintX > labelX + textSize.x + S(16.0f))
+            {
+                drawList->AddText(ImGui::GetFont(), hintFont,
+                                  ImVec2(hintX, origin.y + (height - hintSize.y) * 0.5f),
+                                  ImGui::GetColorU32(c.textMuted), hint);
+            }
+        }
+
+        ImGui::PopID();
+        return clicked;
+    }
+
     void CardBegin(const char* id, const ImVec2& size, const ImVec2& padding)
     {
         const UiColors& c = Colors();
