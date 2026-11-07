@@ -55,8 +55,8 @@ namespace easyav::ui
             ImDrawList* drawList = ImGui::GetWindowDrawList();
             drawList->AddRectFilled(ImVec2(origin.x - S(1.0f), origin.y - S(1.0f)),
                                     ImVec2(max.x + S(1.0f), max.y + S(1.0f)),
-                                    ImGui::GetColorU32(c.border), 13.0f);
-            drawList->AddRectFilled(origin, max, IM_COL32(24, 28, 36, 255), 12.0f);
+                                    ImGui::GetColorU32(c.border), S(9.0f));
+            drawList->AddRectFilled(origin, max, IM_COL32(24, 28, 36, 255), S(8.0f));
 
             drawList->PushClipRect(origin, max, true);
             drawList->AddRectFilledMultiColor(origin, max,
@@ -83,13 +83,13 @@ namespace easyav::ui
             drawList->PopClipRect();
 
             drawList->AddRect(origin, max, ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 1.0f, 0.10f)),
-                              12.0f, 0, 1.0f);
+                              S(8.0f), 0, 1.0f);
 
             const char* tag = "预览示意";
             const ImVec2 tagSize = ImGui::GetFont()->CalcTextSizeA(base * 0.72f, FLT_MAX, 0.0f, tag);
             drawList->AddRectFilled(ImVec2(origin.x + S(12.0f), origin.y + S(12.0f)),
                                     ImVec2(origin.x + S(12.0f) + tagSize.x + S(16.0f), origin.y + S(12.0f) + tagSize.y + S(10.0f)),
-                                    ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 0.35f)), 8.0f);
+                                    ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 0.35f)), S(4.0f));
             drawList->AddText(ImGui::GetFont(), base * 0.72f,
                               ImVec2(origin.x + S(20.0f), origin.y + S(17.0f)),
                               ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 1.0f, 0.75f)), tag);

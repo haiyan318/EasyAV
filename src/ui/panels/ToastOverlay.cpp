@@ -49,12 +49,12 @@ namespace easyav::ui
             const ImVec2 max(min.x + width, bottom);
 
             drawList->AddRectFilled(ImVec2(min.x + S(2.0f), min.y + S(3.0f)), ImVec2(max.x + S(2.0f), max.y + S(3.0f)),
-                                    ImGui::GetColorU32(ImVec4(0.05f, 0.07f, 0.10f, 0.10f * alpha)), S(12.0f));
+                                    ImGui::GetColorU32(ImVec4(0.05f, 0.07f, 0.10f, 0.08f * alpha)), S(8.0f));
             drawList->AddRectFilled(min, max,
-                                    ImGui::GetColorU32(ImVec4(c.panel.x, c.panel.y, c.panel.z, alpha)), S(12.0f));
+                                    ImGui::GetColorU32(ImVec4(c.panel.x, c.panel.y, c.panel.z, alpha)), S(8.0f));
             drawList->AddRect(min, max,
                               ImGui::GetColorU32(ImVec4(c.border.x, c.border.y, c.border.z, alpha)),
-                              S(12.0f), 0, 1.0f);
+                              S(8.0f), 0, 1.0f);
 
             const ImVec4 level = LevelColor(toast.level);
             drawList->AddRectFilled(ImVec2(min.x + S(1.0f), min.y + S(10.0f)),

@@ -30,10 +30,10 @@ namespace easyav::ui
             ImDrawList* drawList = ImGui::GetWindowDrawList();
             const ImVec2 max(origin.x + size.x, origin.y + size.y);
 
-            drawList->AddRectFilled(origin, max, ColorU32(c.panelAlt, 0.65f), 14.0f);
+            drawList->AddRectFilled(origin, max, ColorU32(c.panelAlt, 0.65f), S(8.0f));
             DrawDashedRect(drawList, ImVec2(origin.x + 1.0f, origin.y + 1.0f),
                            ImVec2(max.x - 1.0f, max.y - 1.0f),
-                           ImGui::GetColorU32(c.border), 14.0f, 1.5f, S(9.0f), S(7.0f));
+                           ImGui::GetColorU32(c.border), S(8.0f), 1.0f, S(8.0f), S(6.0f));
 
             const float base = ImGui::GetFontSize();
             const float centerX = origin.x + size.x * 0.5f;
@@ -146,20 +146,20 @@ namespace easyav::ui
             if (activeRow)
             {
                 drawList->AddRectFilled(rowOrigin, rowMax,
-                                        ImGui::GetColorU32(c.selectedSoft), 10.0f);
+                                        ImGui::GetColorU32(c.selectedSoft), S(6.0f));
                 drawList->AddRectFilled(rowOrigin, ImVec2(rowOrigin.x + S(3.0f), rowMax.y),
                                         ImGui::GetColorU32(c.accent), S(2.0f));
             }
             else if (hovered)
             {
-                drawList->AddRectFilled(rowOrigin, rowMax, ImGui::GetColorU32(c.panelAlt), 10.0f);
+                drawList->AddRectFilled(rowOrigin, rowMax, ImGui::GetColorU32(c.panelAlt), S(6.0f));
             }
 
             // 文件类型图标块
             const ImVec2 tileCenter(rowOrigin.x + S(18.0f), rowOrigin.y + rowHeight * 0.5f);
             drawList->AddRectFilled(ImVec2(tileCenter.x - S(11.0f), tileCenter.y - S(11.0f)),
                                     ImVec2(tileCenter.x + S(11.0f), tileCenter.y + S(11.0f)),
-                                    ImGui::GetColorU32(c.panelAlt), S(7.0f));
+                                    ImGui::GetColorU32(c.panelAlt), S(5.0f));
             drawList->AddCircleFilled(tileCenter, S(4.2f),
                                       ImGui::GetColorU32(KindColor(item.kind)));
 
@@ -233,7 +233,7 @@ namespace easyav::ui
                     const ImVec2 badgeMax(rowOrigin.x + rowWidth - S(10.0f),
                                           rowOrigin.y + S(21.0f) + S(22.0f));
                     drawList->AddRectFilled(badgeMin, badgeMax,
-                                            ImGui::GetColorU32(c.accentSoft), S(11.0f));
+                                            ImGui::GetColorU32(c.accentSoft), S(5.0f));
                     drawList->AddText(ImGui::GetFont(), badgeFont,
                                       ImVec2(badgeMin.x + S(7.0f),
                                              badgeMin.y + (S(22.0f) - textSize.y) * 0.5f),

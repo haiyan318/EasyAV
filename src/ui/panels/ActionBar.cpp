@@ -83,8 +83,8 @@ namespace easyav::ui
         const bool canStart = model.Ui().scene == SceneId::Convert
                               && !model.Queue().Empty() && !task.IsRunning()
                               && tools.ffmpegFound;
-        if (GradientButton(StartLabelFor(model, task),
-                           ImVec2(buttonWidth, buttonHeight), canStart))
+        if (AccentButton(StartLabelFor(model, task),
+                         ImVec2(buttonWidth, buttonHeight), canStart))
         {
             StartCurrentTask(model);
         }

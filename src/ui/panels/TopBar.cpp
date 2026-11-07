@@ -24,17 +24,9 @@ namespace easyav::ui
         // 品牌标识
         const ImVec2 logoMin(origin.x, origin.y + S(16.0f));
         const ImVec2 logoMax(logoMin.x + S(44.0f), logoMin.y + S(44.0f));
-        for (int layer = 3; layer >= 1; --layer)
-        {
-            const float spread = S(1.4f) * static_cast<float>(layer);
-            ImVec4 glow = c.accentGlow;
-            glow.w *= 0.30f;
-            drawList->AddRectFilled(ImVec2(logoMin.x - spread, logoMin.y - spread),
-                                    ImVec2(logoMax.x + spread, logoMax.y + spread),
-                                    ImGui::GetColorU32(glow), S(13.0f) + spread);
-        }
-        GradientRect(drawList, logoMin, logoMax, c.accentGradTop, c.accentGradBottom,
-                     S(13.0f));
+        drawList->AddRectFilled(logoMin, logoMax, ImGui::GetColorU32(c.accent), S(8.0f));
+        drawList->AddRect(logoMin, logoMax, ImGui::GetColorU32(c.accentActive), S(8.0f), 0,
+                          1.0f);
 
         const ImVec2 avSize = ImGui::GetFont()->CalcTextSizeA(base * 1.02f, FLT_MAX, 0.0f, "AV");
         drawList->AddText(ImGui::GetFont(), base * 1.02f,
@@ -56,31 +48,31 @@ namespace easyav::ui
         const float fileWidth = S(108.0f);
         const float folderWidth = S(112.0f);
         const float settingsWidth = S(76.0f);
-        const float pillWidth = S(132.0f);
-        const float pillGap = S(10.0f);
-        const float totalWidth = fileWidth + folderWidth + settingsWidth + gap * 2.0f
-                                 + pillWidth + pillGap;
-        float x = origin.x + contentWidth - totalWidth;
-        const float y = origin.y + (S(76.0f) - buttonHeight) * 0.5f;
-
-        // 引擎状态胶囊
         const ToolStatus& tools = model.Task().Tools();
         const bool engineReady = tools.ffmpegFound && tools.ffprobeFound;
         const ImVec4 engineColor = engineReady ? c.success : c.warning;
-        const ImVec2 pillMin(x, origin.y + (S(76.0f) - S(32.0f)) * 0.5f);
-        const ImVec2 pillMax(pillMin.x + pillWidth, pillMin.y + S(32.0f));
-        drawList->AddRectFilled(pillMin, pillMax,
-                                ImGui::GetColorU32(engineReady ? c.successSoft : c.panelAlt),
-                                S(16.0f));
-        drawList->AddCircleFilled(ImVec2(pillMin.x + S(14.0f), pillMin.y + S(16.0f)),
-                                  S(4.0f), ImGui::GetColorU32(engineColor));
-        drawList->AddText(ImGui::GetFont(), base * 0.76f,
-                          ImVec2(pillMin.x + S(24.0f), pillMin.y + S(8.0f)),
-                          ImGui::GetColorU32(engineColor),
-                          engineReady ? "处理组件已就绪" : "处理组件未就绪");
+        const char* engineText = engineReady ? "处理组件已就绪" : "处理组件未就绪";
 
-        ImGui::SetCursorScreenPos(pillMin);
-        ImGui::InvisibleButton("##engine_status", ImVec2(pillWidth, S(32.0f)));
+        const float engineFont = base * 0.76f;
+        const ImVec2 engineTextSize =
+            ImGui::GetFont()->CalcTextSizeA(engineFont, FLT_MAX, 0.0f, engineText);
+        const float statusWidth = S(16.0f) + engineTextSize.x;
+        const float pillGap = S(10.0f);
+        const float totalWidth = fileWidth + folderWidth + settingsWidth + gap * 2.0f
+                                 + statusWidth + pillGap;
+        float x = origin.x + contentWidth - totalWidth;
+        const float y = origin.y + (S(76.0f) - buttonHeight) * 0.5f;
+
+        // 引擎状态：点 + 文本，不做胶囊底。
+        const float statusCenterY = origin.y + S(38.0f);
+        drawList->AddCircleFilled(ImVec2(x + S(4.0f), statusCenterY), S(4.0f),
+                                  ImGui::GetColorU32(engineColor));
+        drawList->AddText(ImGui::GetFont(), engineFont,
+                          ImVec2(x + S(14.0f), statusCenterY - engineTextSize.y * 0.5f),
+                          ImGui::GetColorU32(engineColor), engineText);
+
+        ImGui::SetCursorScreenPos(ImVec2(x, statusCenterY - S(12.0f)));
+        ImGui::InvisibleButton("##engine_status", ImVec2(statusWidth, S(24.0f)));
         if (ImGui::IsItemHovered())
         {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
@@ -90,7 +82,7 @@ namespace easyav::ui
         if (ImGui::IsItemClicked())
             model.Ui().showSettings = true;
 
-        x += pillWidth + pillGap;
+        x += statusWidth + pillGap;
 
         ImGui::BeginDisabled(model.Task().IsRunning());
 

@@ -19,8 +19,8 @@ namespace easyav::ui
     bool SecondaryButton(const char* label, const ImVec2& size = ImVec2(0.0f, 0.0f));
     bool ChoiceChip(const char* label, bool selected, const ImVec2& size = ImVec2(0.0f, 0.0f));
 
-    // 渐变主按钮：enabled=false 时自绘为不可用状态（自绘控件不受 BeginDisabled 调色影响）。
-    bool GradientButton(const char* label, const ImVec2& size, bool enabled = true);
+    // 主操作按钮：实色、6px 圆角；enabled=false 时自绘为不可用状态。
+    bool AccentButton(const char* label, const ImVec2& size, bool enabled = true);
 
     enum class OptionIcon
     {
@@ -36,10 +36,6 @@ namespace easyav::ui
 
     // 带圆形序号的步骤标题（1/2/3）。
     void StepHeader(int index, const char* title, const char* hint = nullptr);
-
-    // 竖直渐变填充；圆角用逐行内缩精确绘制。
-    void GradientRect(ImDrawList* drawList, const ImVec2& min, const ImVec2& max,
-                      const ImVec4& top, const ImVec4& bottom, float rounding);
 
     bool ToggleSwitch(const char* label, bool* value);
 

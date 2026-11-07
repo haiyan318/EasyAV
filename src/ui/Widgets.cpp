@@ -20,32 +20,6 @@ namespace easyav::ui
             return std::clamp(value, 0.0f, 1.0f);
         }
 
-        ImVec4 LerpColor(const ImVec4& a, const ImVec4& b, float t)
-        {
-            const float k = Clamp01(t);
-            return ImVec4(a.x + (b.x - a.x) * k, a.y + (b.y - a.y) * k,
-                          a.z + (b.z - a.z) * k, a.w + (b.w - a.w) * k);
-        }
-
-        // 在 BeginChild 之前绘制卡片投影（只画到父窗口，避免挡住子窗口内容）。
-        void DrawCardShadow(ImDrawList* drawList, const ImVec2& min, const ImVec2& max,
-                            float rounding)
-        {
-            if (!drawList)
-                return;
-
-            const ImVec4 shadow = Colors().cardShadow;
-            for (int layer = 5; layer >= 1; --layer)
-            {
-                const float spread = S(1.1f) * static_cast<float>(layer);
-                ImVec4 color = shadow;
-                color.w = shadow.w * 0.12f * static_cast<float>(layer);
-                drawList->AddRectFilled(ImVec2(min.x - spread, min.y - spread + S(2.0f)),
-                                        ImVec2(max.x + spread, max.y + spread + S(2.0f)),
-                                        ImGui::GetColorU32(color), rounding + spread);
-            }
-        }
-
         void DrawPill(ImDrawList* drawList, const ImVec2& pos, const char* text,
                       const ImVec4& background, const ImVec4& foreground, float fontSize)
         {
@@ -56,8 +30,7 @@ namespace easyav::ui
             const ImVec2 padding(S(7.0f), S(3.0f));
             const ImVec2 max(pos.x + textSize.x + padding.x * 2.0f,
                              pos.y + textSize.y + padding.y * 2.0f);
-            drawList->AddRectFilled(pos, max, ImGui::GetColorU32(background),
-                                    (max.y - pos.y) * 0.5f);
+            drawList->AddRectFilled(pos, max, ImGui::GetColorU32(background), S(3.0f));
             drawList->AddText(ImGui::GetFont(), fontSize,
                               ImVec2(pos.x + padding.x, pos.y + padding.y),
                               ImGui::GetColorU32(foreground), text);
@@ -150,8 +123,8 @@ namespace easyav::ui
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, c.accentHover);
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, c.accentActive);
         ImGui::PushStyleColor(ImGuiCol_Text, c.white);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, S(10.0f));
-        PushFontSize(ImGui::GetFontSize() * 1.03f);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, S(6.0f));
+        PushFontSize(ImGui::GetFontSize());
         const bool clicked = ImGui::Button(label, size);
         PopFontSize();
         ImGui::PopStyleVar();
@@ -167,7 +140,7 @@ namespace easyav::ui
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, c.track);
         ImGui::PushStyleColor(ImGuiCol_Text, c.text);
         ImGui::PushStyleColor(ImGuiCol_Border, c.border);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, S(10.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, S(6.0f));
         ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
         const bool clicked = ImGui::Button(label, size);
         ImGui::PopStyleVar(2);
@@ -178,13 +151,13 @@ namespace easyav::ui
     bool ChoiceChip(const char* label, bool selected, const ImVec2& size)
     {
         const UiColors& c = Colors();
-        ImGui::PushStyleColor(ImGuiCol_Button, selected ? c.accent : c.panelAlt);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, selected ? c.accentHover : c.panelHover);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, selected ? c.accentActive : c.track);
-        ImGui::PushStyleColor(ImGuiCol_Text, selected ? c.white : c.text);
+        ImGui::PushStyleColor(ImGuiCol_Button, selected ? c.selectedSoft : c.panelAlt);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, selected ? c.accentSoft : c.panelHover);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, selected ? c.accentSoft : c.track);
+        ImGui::PushStyleColor(ImGuiCol_Text, selected ? c.accent : c.text);
         ImGui::PushStyleColor(ImGuiCol_Border, selected ? c.accent : c.border);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, S(9.0f));
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, selected ? 0.0f : 1.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, S(6.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
         const bool clicked = ImGui::Button(label, size);
         ImGui::PopStyleVar(2);
         ImGui::PopStyleColor(5);
@@ -233,17 +206,9 @@ namespace easyav::ui
     void CardBegin(const char* id, const ImVec2& size, const ImVec2& padding)
     {
         const UiColors& c = Colors();
-        const float shadowWidth = size.x > 0.0f ? size.x : ImGui::GetContentRegionAvail().x;
-        if (shadowWidth > 0.0f && size.y >= S(100.0f))
-        {
-            const ImVec2 origin = ImGui::GetCursorScreenPos();
-            DrawCardShadow(ImGui::GetWindowDrawList(), origin,
-                           ImVec2(origin.x + shadowWidth, origin.y + size.y), S(14.0f));
-        }
-
         ImGui::PushStyleColor(ImGuiCol_ChildBg, c.panel);
         ImGui::PushStyleColor(ImGuiCol_Border, c.border);
-        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, S(14.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, S(8.0f));
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, padding);
         ImGui::BeginChild(id, size, ImGuiChildFlags_Borders | ImGuiChildFlags_AlwaysUseWindowPadding,
@@ -265,7 +230,7 @@ namespace easyav::ui
         const ImVec2 origin = ImGui::GetCursorScreenPos();
         ImDrawList* drawList = ImGui::GetWindowDrawList();
         drawList->AddRectFilled(origin, ImVec2(origin.x + size.x, origin.y + size.y),
-                                ImGui::GetColorU32(background), size.y * 0.5f);
+                                ImGui::GetColorU32(background), S(3.0f));
         drawList->AddText(ImVec2(origin.x + padding.x, origin.y + padding.y),
                           ImGui::GetColorU32(foreground), text);
         ImGui::Dummy(size);
@@ -280,7 +245,7 @@ namespace easyav::ui
 
         ImDrawList* drawList = ImGui::GetWindowDrawList();
         const UiColors& c = Colors();
-        const float rounding = size.y * 0.5f;
+        const float rounding = S(3.0f);
         const ImVec2 end(origin.x + size.x, origin.y + size.y);
 
         // 动效只存在 ImGui 内部状态，不进入 AppModel。
@@ -300,23 +265,8 @@ namespace easyav::ui
         {
             float filledWidth = size.x * clamped;
             filledWidth = std::max(filledWidth, size.y);
-            const ImVec2 fillMax(origin.x + filledWidth, origin.y + size.y);
-            GradientRect(drawList, origin, fillMax, c.accentGradTop, c.accentGradBottom,
-                         rounding);
-
-            if (animated)
-            {
-                drawList->PushClipRect(origin, fillMax, true);
-                const float phase = std::fmod(static_cast<float>(ImGui::GetTime()) * 0.55f, 1.0f);
-                const float sheenWidth = std::max(size.y * 2.2f, S(28.0f));
-                const float sheenX = origin.x - sheenWidth
-                                     + (filledWidth + sheenWidth) * phase;
-                drawList->AddRectFilled(ImVec2(sheenX, origin.y),
-                                        ImVec2(sheenX + sheenWidth, origin.y + size.y),
-                                        ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 1.0f, 0.16f)),
-                                        rounding);
-                drawList->PopClipRect();
-            }
+            drawList->AddRectFilled(origin, ImVec2(origin.x + filledWidth, origin.y + size.y),
+                                    ImGui::GetColorU32(c.accent), rounding);
         }
 
         if (overlay && overlay[0] != '\0')
@@ -557,62 +507,20 @@ namespace easyav::ui
         return result;
     }
 
-    void GradientRect(ImDrawList* drawList, const ImVec2& min, const ImVec2& max,
-                      const ImVec4& top, const ImVec4& bottom, float rounding)
-    {
-        if (!drawList)
-            return;
-
-        const float width = max.x - min.x;
-        const float height = max.y - min.y;
-        if (width <= 0.0f || height <= 0.0f)
-            return;
-
-        const float radius = std::clamp(rounding, 0.0f, std::min(width, height) * 0.5f);
-        const int rows = std::max(1, static_cast<int>(std::ceil(height)));
-        for (int row = 0; row < rows; ++row)
-        {
-            const float centerY = static_cast<float>(row) + 0.5f;
-            float inset = 0.0f;
-            if (centerY < radius)
-            {
-                const float dy = radius - centerY;
-                inset = radius - std::sqrt(std::max(0.0f, radius * radius - dy * dy));
-            }
-            else if (centerY > height - radius)
-            {
-                const float dy = centerY - (height - radius);
-                inset = radius - std::sqrt(std::max(0.0f, radius * radius - dy * dy));
-            }
-
-            const float t = centerY / height;
-            const ImU32 color = ImGui::GetColorU32(LerpColor(top, bottom, t));
-            drawList->AddRectFilled(ImVec2(min.x + inset, min.y + static_cast<float>(row)),
-                                    ImVec2(max.x - inset,
-                                           min.y + static_cast<float>(row) + 1.0f),
-                                    color);
-        }
-    }
-
-    bool GradientButton(const char* label, const ImVec2& size, bool enabled)
+    bool AccentButton(const char* label, const ImVec2& size, bool enabled)
     {
         const UiColors& c = Colors();
         const float base = ImGui::GetFontSize();
 
         ImGui::PushID(label);
         const ImVec2 origin = ImGui::GetCursorScreenPos();
-        ImGui::InvisibleButton("##gradient", size, ImGuiButtonFlags_None);
+        ImGui::InvisibleButton("##accent", size, ImGuiButtonFlags_None);
 
         const bool hovered = ImGui::IsItemHovered() && enabled;
         const bool held = ImGui::IsItemActive() && enabled;
         const bool clicked = ImGui::IsItemClicked() && enabled;
         if (hovered)
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-
-        ImGuiStorage* storage = ImGui::GetStateStorage();
-        float* hoverAnim = storage->GetFloatRef(ImGui::GetID("##hover"), 0.0f);
-        const float dt = std::clamp(ImGui::GetIO().DeltaTime, 0.0f, 0.1f);
-        *hoverAnim += ((hovered ? 1.0f : 0.0f) - *hoverAnim) * std::clamp(dt * 12.0f, 0.0f, 1.0f);
 
         ImVec2 min = origin;
         ImVec2 max(origin.x + size.x, origin.y + size.y);
@@ -623,34 +531,20 @@ namespace easyav::ui
         }
 
         ImDrawList* drawList = ImGui::GetWindowDrawList();
-        const float rounding = S(11.0f);
+        const float rounding = S(6.0f);
 
+        ImVec4 fill = c.track;
         if (enabled)
-        {
-            for (int layer = 3; layer >= 1; --layer)
-            {
-                const float spread = S(1.8f) * static_cast<float>(layer) + S(2.0f) * *hoverAnim;
-                ImVec4 glow = c.accentGlow;
-                glow.w *= 0.35f + 0.55f * *hoverAnim;
-                drawList->AddRectFilled(ImVec2(min.x - spread, min.y - spread),
-                                        ImVec2(max.x + spread, max.y + spread),
-                                        ImGui::GetColorU32(glow), rounding + spread);
-            }
+            fill = held ? c.accentActive : (hovered ? c.accentHover : c.accent);
 
-            GradientRect(drawList, min, max, c.accentGradTop, c.accentGradBottom, rounding);
-            drawList->AddRectFilled(min, ImVec2(max.x, min.y + (max.y - min.y) * 0.55f),
-                                    ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 1.0f, 0.10f)),
-                                    rounding, ImDrawFlags_RoundCornersTop);
-        }
-        else
-        {
-            drawList->AddRectFilled(min, max, ImGui::GetColorU32(c.track), rounding);
-        }
+        drawList->AddRectFilled(min, max, ImGui::GetColorU32(fill), rounding);
+        if (enabled)
+            drawList->AddRect(min, max, ImGui::GetColorU32(c.accentActive), rounding, 0, 1.0f);
 
-        const ImVec2 textSize = TextSize(ImGui::GetFont(), base * 1.02f, label);
-        const ImVec2 textPos(min.x + (size.x - textSize.x) * 0.5f,
-                             min.y + (size.y - textSize.y) * 0.5f);
-        drawList->AddText(ImGui::GetFont(), base * 1.02f, textPos,
+        const ImVec2 textSize = TextSize(ImGui::GetFont(), base, label);
+        drawList->AddText(ImGui::GetFont(), base,
+                          ImVec2(min.x + (size.x - textSize.x) * 0.5f,
+                                 min.y + (size.y - textSize.y) * 0.5f),
                           ImGui::GetColorU32(enabled ? c.white : c.textMuted), label);
 
         ImGui::PopID();
@@ -672,34 +566,28 @@ namespace easyav::ui
         if (hovered)
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 
-        ImGuiStorage* storage = ImGui::GetStateStorage();
-        float* hoverAnim = storage->GetFloatRef(ImGui::GetID("##hover"), 0.0f);
-        const float dt = std::clamp(ImGui::GetIO().DeltaTime, 0.0f, 0.1f);
-        *hoverAnim += ((hovered ? 1.0f : 0.0f) - *hoverAnim) * std::clamp(dt * 14.0f, 0.0f, 1.0f);
-
-        const float lift = S(1.5f) * *hoverAnim;
-        const ImVec2 min(origin.x, origin.y - lift);
-        const ImVec2 max(origin.x + size.x, origin.y + size.y - lift);
-
+        const ImVec2 min = origin;
+        const ImVec2 max(origin.x + size.x, origin.y + size.y);
         ImDrawList* drawList = ImGui::GetWindowDrawList();
-        const float rounding = S(14.0f);
-        DrawCardShadow(drawList, min, max, rounding);
+        const float rounding = S(6.0f);
 
         const ImVec4 background = selected ? c.selectedSoft
-                                           : LerpColor(c.panelAlt, c.panelHover, *hoverAnim);
+                                           : (hovered ? c.panelHover : c.panelAlt);
         drawList->AddRectFilled(min, max, ImGui::GetColorU32(background), rounding);
 
-        const ImVec4 border = selected ? c.accent
-                                       : LerpColor(c.border, c.cardHover, *hoverAnim);
-        drawList->AddRect(min, max, ImGui::GetColorU32(border), rounding, 0,
-                          selected ? 2.0f : 1.0f);
+        const ImVec4 border = selected ? c.accent : (hovered ? c.cardHover : c.border);
+        drawList->AddRect(min, max, ImGui::GetColorU32(border), rounding, 0, 1.0f);
 
-        const ImVec2 iconCenter(min.x + S(27.0f), min.y + S(30.0f));
-        const float iconRadius = S(15.0f);
-        drawList->AddCircleFilled(iconCenter, iconRadius,
-                                  ImGui::GetColorU32(selected ? c.accent : c.panel));
-        DrawOptionIcon(drawList, icon, iconCenter, iconRadius,
-                       ImGui::GetColorU32(selected ? c.white : c.accent));
+        // 图标使用小圆角方块，避免整套界面都由圆形/胶囊构成。
+        const ImVec2 tileMin(min.x + S(14.0f), min.y + S(16.0f));
+        const ImVec2 tileMax(tileMin.x + S(28.0f), tileMin.y + S(28.0f));
+        drawList->AddRectFilled(tileMin, tileMax,
+                                ImGui::GetColorU32(selected ? c.accentSoft : c.panel),
+                                S(5.0f));
+        DrawOptionIcon(drawList, icon,
+                       ImVec2((tileMin.x + tileMax.x) * 0.5f,
+                              (tileMin.y + tileMax.y) * 0.5f),
+                       S(13.0f), ImGui::GetColorU32(c.accent));
 
         const float tagFont = base * 0.69f;
         float tagWidth = 0.0f;
@@ -708,35 +596,34 @@ namespace easyav::ui
             const ImVec2 tagSize = ImGui::GetFont()->CalcTextSizeA(tagFont, FLT_MAX, 0.0f, tag);
             tagWidth = tagSize.x + S(14.0f);
             DrawPill(drawList, ImVec2(max.x - tagWidth - S(12.0f), min.y + S(12.0f)), tag,
-                     selected ? c.accent : c.accentSoft,
-                     selected ? c.white : c.accent, tagFont);
+                     c.accentSoft, c.accent, tagFont);
         }
 
-        const float titleX = min.x + S(50.0f);
+        const float titleX = min.x + S(52.0f);
         const float titleWidth = std::max(max.x - titleX - tagWidth - S(18.0f), S(40.0f));
         const std::string shownTitle = Ellipsize(title ? title : "", titleWidth);
         drawList->AddText(ImGui::GetFont(), base * 1.02f,
-                          ImVec2(titleX, min.y + S(18.0f)),
-                          ImGui::GetColorU32(c.text), shownTitle.c_str());
+                          ImVec2(titleX, min.y + S(17.0f)),
+                          ImGui::GetColorU32(selected ? c.accent : c.text),
+                          shownTitle.c_str());
 
         if (subtitle && subtitle[0] != '\0')
         {
             drawList->AddText(ImGui::GetFont(), base * 0.75f,
-                              ImVec2(min.x + S(15.0f), min.y + S(56.0f)),
-                              ImGui::GetColorU32(selected ? c.text : c.textMuted), subtitle,
-                              nullptr, size.x - S(36.0f));
+                              ImVec2(min.x + S(15.0f), min.y + S(54.0f)),
+                              ImGui::GetColorU32(c.textMuted), subtitle, nullptr,
+                              size.x - S(30.0f));
         }
 
         if (selected)
         {
-            const ImVec2 checkCenter(max.x - S(16.0f), max.y - S(16.0f));
-            drawList->AddCircleFilled(checkCenter, S(8.0f), ImGui::GetColorU32(c.accent));
-            drawList->AddLine(ImVec2(checkCenter.x - S(3.5f), checkCenter.y),
-                              ImVec2(checkCenter.x - S(1.0f), checkCenter.y + S(2.5f)),
-                              ImGui::GetColorU32(c.white), S(1.6f));
-            drawList->AddLine(ImVec2(checkCenter.x - S(1.0f), checkCenter.y + S(2.5f)),
-                              ImVec2(checkCenter.x + S(4.0f), checkCenter.y - S(3.0f)),
-                              ImGui::GetColorU32(c.white), S(1.6f));
+            const ImVec2 check(max.x - S(16.0f), max.y - S(14.0f));
+            drawList->AddLine(ImVec2(check.x - S(4.0f), check.y),
+                              ImVec2(check.x - S(1.0f), check.y + S(3.0f)),
+                              ImGui::GetColorU32(c.accent), S(1.8f));
+            drawList->AddLine(ImVec2(check.x - S(1.0f), check.y + S(3.0f)),
+                              ImVec2(check.x + S(5.0f), check.y - S(4.0f)),
+                              ImGui::GetColorU32(c.accent), S(1.8f));
         }
 
         ImGui::PopID();

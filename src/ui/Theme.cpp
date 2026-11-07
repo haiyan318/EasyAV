@@ -38,24 +38,24 @@ namespace easyav::ui
         ImGuiStyle& style = ImGui::GetStyle();
 
         style.WindowPadding = ImVec2(16.0f, 16.0f);
-        style.WindowRounding = 16.0f;
+        style.WindowRounding = 8.0f;
         style.WindowBorderSize = 0.0f;
-        style.ChildRounding = 14.0f;
+        style.ChildRounding = 8.0f;
         style.ChildBorderSize = 1.0f;
-        style.PopupRounding = 14.0f;
+        style.PopupRounding = 8.0f;
         style.PopupBorderSize = 1.0f;
-        style.FramePadding = ImVec2(12.0f, 8.0f);
-        style.FrameRounding = 10.0f;
+        style.FramePadding = ImVec2(10.0f, 6.0f);
+        style.FrameRounding = 6.0f;
         style.FrameBorderSize = 0.0f;
-        style.ItemSpacing = ImVec2(10.0f, 10.0f);
+        style.ItemSpacing = ImVec2(10.0f, 8.0f);
         style.ItemInnerSpacing = ImVec2(8.0f, 6.0f);
         style.CellPadding = ImVec2(10.0f, 8.0f);
         style.IndentSpacing = 18.0f;
         style.ScrollbarSize = 12.0f;
-        style.ScrollbarRounding = 8.0f;
+        style.ScrollbarRounding = 4.0f;
         style.GrabMinSize = 10.0f;
-        style.GrabRounding = 6.0f;
-        style.TabRounding = 9.0f;
+        style.GrabRounding = 4.0f;
+        style.TabRounding = 6.0f;
         style.TabBorderSize = 0.0f;
         style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
         style.SelectableTextAlign = ImVec2(0.0f, 0.5f);
@@ -68,11 +68,11 @@ namespace easyav::ui
     {
         if (dark)
         {
-            g_colors.bg = Rgb(19, 21, 26);
-            g_colors.panel = Rgb(29, 32, 39);
-            g_colors.panelAlt = Rgb(36, 40, 48);
-            g_colors.panelHover = Rgb(45, 50, 60);
-            g_colors.border = Rgb(55, 60, 71);
+            g_colors.bg = Rgb(16, 18, 22);
+            g_colors.panel = Rgb(26, 29, 35);
+            g_colors.panelAlt = Rgb(32, 36, 43);
+            g_colors.panelHover = Rgb(42, 47, 57);
+            g_colors.border = Rgb(52, 58, 70);
             g_colors.text = Rgb(232, 236, 241);
             g_colors.textMuted = Rgb(160, 169, 182);
             g_colors.accent = Rgb(74, 139, 255);
@@ -85,22 +85,16 @@ namespace easyav::ui
             g_colors.track = Rgb(54, 59, 69);
             g_colors.white = Rgb(255, 255, 255);
 
-            g_colors.accentGradTop = Rgb(101, 160, 255);
-            g_colors.accentGradBottom = Rgb(63, 122, 240);
-            g_colors.accentGlow = Rgb(74, 139, 255, 0.30f);
-            g_colors.cardShadow = Rgb(0, 0, 0, 0.38f);
             g_colors.cardHover = Rgb(73, 81, 95);
-            g_colors.selectedSoft = Rgb(74, 139, 255, 0.14f);
-            g_colors.successSoft = Rgb(62, 189, 131, 0.16f);
-            g_colors.dangerSoft = Rgb(242, 102, 102, 0.16f);
+            g_colors.selectedSoft = Rgb(31, 49, 82);
         }
         else
         {
-            g_colors.bg = Rgb(242, 245, 250);
+            g_colors.bg = Rgb(237, 241, 247);
             g_colors.panel = Rgb(255, 255, 255);
-            g_colors.panelAlt = Rgb(246, 249, 253);
-            g_colors.panelHover = Rgb(236, 241, 249);
-            g_colors.border = Rgb(224, 230, 239);
+            g_colors.panelAlt = Rgb(248, 250, 253);
+            g_colors.panelHover = Rgb(240, 244, 250);
+            g_colors.border = Rgb(222, 228, 238);
             g_colors.text = Rgb(28, 36, 50);
             g_colors.textMuted = Rgb(106, 116, 132);
             g_colors.accent = Rgb(45, 112, 240);
@@ -113,14 +107,8 @@ namespace easyav::ui
             g_colors.track = Rgb(227, 232, 240);
             g_colors.white = Rgb(255, 255, 255);
 
-            g_colors.accentGradTop = Rgb(84, 146, 255);
-            g_colors.accentGradBottom = Rgb(41, 104, 232);
-            g_colors.accentGlow = Rgb(45, 112, 240, 0.26f);
-            g_colors.cardShadow = Rgb(28, 44, 78, 0.10f);
             g_colors.cardHover = Rgb(203, 214, 231);
-            g_colors.selectedSoft = Rgb(45, 112, 240, 0.09f);
-            g_colors.successSoft = Rgb(20, 158, 100, 0.13f);
-            g_colors.dangerSoft = Rgb(226, 72, 72, 0.13f);
+            g_colors.selectedSoft = Rgb(239, 246, 255);
         }
 
         const UiColors& c = g_colors;

@@ -91,53 +91,36 @@ namespace easyav::ui
 
             ImDrawList* drawList = ImGui::GetWindowDrawList();
             const ImVec2 max(origin.x + size.x, origin.y + size.y);
-            const float rounding = S(12.0f);
+            const float rounding = S(8.0f);
 
-            if (selected)
-            {
-                for (int layer = 3; layer >= 1; --layer)
-                {
-                    const float spread = S(1.4f) * static_cast<float>(layer);
-                    ImVec4 glow = c.accentGlow;
-                    glow.w *= 0.32f;
-                    drawList->AddRectFilled(ImVec2(origin.x - spread, origin.y - spread),
-                                            ImVec2(max.x + spread, max.y + spread),
-                                            ImGui::GetColorU32(glow), rounding + spread);
-                }
-            }
-
-            const ImU32 background = ImGui::GetColorU32(selected ? c.accentSoft
+            const ImU32 background = ImGui::GetColorU32(selected ? c.selectedSoft
                                                                  : (hovered ? c.panelHover : c.panel));
             drawList->AddRectFilled(origin, max, background, rounding);
             drawList->AddRect(origin, max, ImGui::GetColorU32(selected ? c.accent : c.border),
-                              rounding, 0, selected ? 2.0f : 1.0f);
-
-            if (selected)
-            {
-                drawList->AddRectFilled(
-                    ImVec2(origin.x + size.x * 0.5f - S(18.0f), max.y - S(3.0f)),
-                    ImVec2(origin.x + size.x * 0.5f + S(18.0f), max.y - S(1.0f)),
-                    ImGui::GetColorU32(c.accent), S(1.5f));
-            }
+                              rounding, 0, 1.0f);
 
             const bool compact = size.x < S(165.0f);
             const float iconX = compact ? S(24.0f) : S(30.0f);
-            const float iconRadius = compact ? S(15.0f) : S(17.0f);
-            const float textX = compact ? S(46.0f) : S(54.0f);
+            const float iconSize = compact ? S(24.0f) : S(26.0f);
+            const float textX = compact ? S(45.0f) : S(52.0f);
             const float titleSize = compact ? base * 0.88f : base;
             const float subtitleSize = compact ? base * 0.66f : base * 0.74f;
 
             const ImVec2 iconCenter(origin.x + iconX, origin.y + size.y * 0.5f);
-            drawList->AddCircleFilled(iconCenter, iconRadius,
-                                      ImGui::GetColorU32(selected ? c.white : c.panelAlt));
-            DrawSceneIcon(drawList, id, iconCenter, iconRadius,
-                          ImGui::GetColorU32(selected ? c.accent : c.textMuted));
+            const ImVec2 iconMin(iconCenter.x - iconSize * 0.5f,
+                                 iconCenter.y - iconSize * 0.5f);
+            drawList->AddRectFilled(iconMin,
+                                    ImVec2(iconMin.x + iconSize, iconMin.y + iconSize),
+                                    ImGui::GetColorU32(selected ? c.accent : c.panelAlt),
+                                    S(5.0f));
+            DrawSceneIcon(drawList, id, iconCenter, iconSize * 0.42f,
+                          ImGui::GetColorU32(selected ? c.white : c.textMuted));
 
             drawList->PushClipRect(ImVec2(origin.x + S(3.0f), origin.y),
                                    ImVec2(max.x - S(5.0f), max.y - S(5.0f)), true);
             drawList->AddText(ImGui::GetFont(), titleSize,
                               ImVec2(origin.x + textX, origin.y + S(16.0f)),
-                              ImGui::GetColorU32(c.text), SceneLabel(id));
+                              ImGui::GetColorU32(selected ? c.accent : c.text), SceneLabel(id));
             drawList->AddText(ImGui::GetFont(), subtitleSize,
                               ImVec2(origin.x + textX, origin.y + S(39.0f)),
                               ImGui::GetColorU32(c.textMuted), SceneSubtitle(id));
