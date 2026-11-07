@@ -4,6 +4,24 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{3C8E5A91-7D24-4B6F-9E03-1A5D8C2F70B6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{A1B2C3D4-0001-4E00-9000-000000000001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core">
+      <UniqueIdentifier>{A1B2C3D4-0002-4E00-9000-000000000002}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\model">
+      <UniqueIdentifier>{A1B2C3D4-0003-4E00-9000-000000000003}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\platform">
+      <UniqueIdentifier>{A1B2C3D4-0004-4E00-9000-000000000004}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ui">
+      <UniqueIdentifier>{A1B2C3D4-0005-4E00-9000-000000000005}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ui\panels">
+      <UniqueIdentifier>{A1B2C3D4-0006-4E00-9000-000000000006}</UniqueIdentifier>
+    </Filter>
     <Filter Include="sources">
       <UniqueIdentifier>{B47D2F60-9A18-4C35-8D7E-2F61B0A4C9E3}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
@@ -31,6 +49,69 @@
     <ClCompile Include="..\imgui-docking\backends\imgui_impl_glfw.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="src\App.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Format.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Text.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\AppModel.cpp">
+      <Filter>src\model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\MediaQueue.cpp">
+      <Filter>src\model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\TaskController.cpp">
+      <Filter>src\model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\FileDialogs.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\Theme.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\Widgets.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\panels\ActionBar.cpp">
+      <Filter>src\ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\panels\BatchPanel.cpp">
+      <Filter>src\ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\panels\ClipPanel.cpp">
+      <Filter>src\ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\panels\CompressPanel.cpp">
+      <Filter>src\ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\panels\FilterPanel.cpp">
+      <Filter>src\ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\panels\QueuePanel.cpp">
+      <Filter>src\ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\panels\RecordPanel.cpp">
+      <Filter>src\ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\panels\SceneTabs.cpp">
+      <Filter>src\ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\panels\SettingsDialog.cpp">
+      <Filter>src\ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\panels\StatusBar.cpp">
+      <Filter>src\ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\panels\ToastOverlay.cpp">
+      <Filter>src\ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\panels\TopBar.cpp">
+      <Filter>src\ui\panels</Filter>
+    </ClCompile>
     <ClCompile Include="..\imgui-docking\backends\imgui_impl_opengl3.cpp">
       <Filter>sources</Filter>
     </ClCompile>
@@ -50,6 +131,78 @@
     </ClInclude>
     <ClInclude Include="..\imgui-docking\backends\imgui_impl_opengl3.h">
       <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="src\App.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Format.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Text.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Types.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\AppModel.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\MediaQueue.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\TaskController.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\TaskSettings.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\FileDialogs.h">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\Labels.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\Theme.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\Widgets.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\panels\ActionBar.h">
+      <Filter>src\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\panels\BatchPanel.h">
+      <Filter>src\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\panels\ClipPanel.h">
+      <Filter>src\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\panels\CompressPanel.h">
+      <Filter>src\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\panels\FilterPanel.h">
+      <Filter>src\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\panels\QueuePanel.h">
+      <Filter>src\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\panels\RecordPanel.h">
+      <Filter>src\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\panels\SceneTabs.h">
+      <Filter>src\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\panels\SettingsDialog.h">
+      <Filter>src\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\panels\StatusBar.h">
+      <Filter>src\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\panels\ToastOverlay.h">
+      <Filter>src\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\panels\TopBar.h">
+      <Filter>src\ui\panels</Filter>
     </ClInclude>
     <ClInclude Include="..\imgui-docking\backends\imgui_impl_opengl3_loader.h">
       <Filter>sources</Filter>

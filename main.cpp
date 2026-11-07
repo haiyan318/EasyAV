@@ -1,6 +1,9 @@
-// EasyAV - framework skeleton only. No application/business code yet.
-// Adapted from imgui-docking/examples/example_glfw_opengl3/main.cpp.
-// Stack: C++17 + Dear ImGui (docking branch) + GLFW + OpenGL3.
+// EasyAV - 极简音视频处理工具
+// 技术栈：C++17 + Dear ImGui (docking 分支) + GLFW + OpenGL3
+// 本文件只负责窗口/后端生命周期与事件转发，界面与状态全部位于 src/。
+
+#include "App.h"
+#include "ui/Theme.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -10,7 +13,10 @@
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
-#include <GLFW/glfw3.h> // Will drag system OpenGL headers
+#include <GLFW/glfw3.h>
+
+#include <string>
+#include <vector>
 
 // The prebuilt glfw3.lib shipped with imgui was compiled with VS2010.
 // VS2015+ needs legacy_stdio_definitions.lib to resolve the legacy stdio symbols.
@@ -23,7 +29,24 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-// Main code
+static void glfw_drop_callback(GLFWwindow* window, int count, const char** paths)
+{
+    auto* app = static_cast<easyav::App*>(glfwGetWindowUserPointer(window));
+    if (!app || count <= 0 || paths == nullptr)
+        return;
+
+    std::vector<std::string> dropped;
+    dropped.reserve(static_cast<std::size_t>(count));
+    for (int i = 0; i < count; ++i)
+    {
+        if (paths[i] != nullptr)
+            dropped.emplace_back(paths[i]);
+    }
+
+    if (!dropped.empty())
+        app->AddDroppedPaths(dropped);
+}
+
 int main(int, char**)
 {
     glfwSetErrorCallback(glfw_error_callback);
@@ -32,84 +55,72 @@ int main(int, char**)
 
     // Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
-    // GL ES 2.0 + GLSL 100 (WebGL 1.0)
     const char* glsl_version = "#version 100";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 #elif defined(IMGUI_IMPL_OPENGL_ES3)
-    // GL ES 3.0 + GLSL 300 es (WebGL 2.0)
     const char* glsl_version = "#version 300 es";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 #elif defined(__APPLE__)
-    // GL 3.2 + GLSL 150
     const char* glsl_version = "#version 150";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #else
-    // GL 3.0 + GLSL 130
     const char* glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif
 
-    // Create window with graphics context
-    float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor()); // Valid on GLFW 3.3+ only
-    GLFWwindow* window = glfwCreateWindow((int)(1280 * main_scale), (int)(800 * main_scale), "EasyAV", nullptr, nullptr);
+    const float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
+    GLFWwindow* window = glfwCreateWindow(static_cast<int>(1280 * main_scale),
+                                          static_cast<int>(820 * main_scale),
+                                          "EasyAV · 极简音视频工具", nullptr, nullptr);
     if (window == nullptr)
         return 1;
+
+    glfwSetWindowSizeLimits(window,
+                            static_cast<int>(1024 * main_scale),
+                            static_cast<int>(680 * main_scale),
+                            GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
 
-    // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
+    // 统一主题：先铺默认浅色，再覆盖为 EasyAV 配色。关闭多视口后，
+    // 弹窗与主界面保持一致，避免小白用户把窗口拖丢。
+    ImGui::StyleColorsLight();
+    easyav::ui::ApplyMetrics();
+    easyav::ui::ApplyTheme(false);
 
-    // Setup scaling
     ImGuiStyle& style = ImGui::GetStyle();
     style.ScaleAllSizes(main_scale);
     style.FontScaleDpi = main_scale;
 #if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 3
     io.ConfigDpiScaleFonts = true;
-    io.ConfigDpiScaleViewports = true;
 #endif
 
-    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }
-
-    // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    // Load Fonts (framework note)
-    // The default ImGui font has no CJK glyphs. When the UI needs Chinese text,
-    // load a CJK TTF here before starting the main loop, e.g.:
-    //   io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\msyh.ttc", 18.0f, nullptr,
-    //                                io.Fonts->GetGlyphRangesChineseFull());
+    static easyav::App app;
+    glfwSetWindowUserPointer(window, &app);
+    glfwSetDropCallback(window, glfw_drop_callback);
+    app.Init();
 
-    // Our state (framework only)
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    const ImVec4 clear_color = easyav::ui::Colors().bg;
 
-    // Main loop
     while (!glfwWindowShouldClose(window))
     {
-        // Poll and handle events (inputs, window resize, etc.)
         glfwPollEvents();
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
         {
@@ -117,47 +128,24 @@ int main(int, char**)
             continue;
         }
 
-        // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // ---------------------------------------------------------------------
-        // Application UI placeholder.
-        // All EasyAV business/UI code belongs here in later iterations.
-        // ---------------------------------------------------------------------
-        {
-            ImGui::Begin("EasyAV");
-            ImGui::Text("EasyAV framework is ready.");
-            ImGui::Text("C++17 + Dear ImGui + GLFW + OpenGL3");
-            ImGui::Separator();
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-                        1000.0f / io.Framerate, io.Framerate);
-            ImGui::End();
-        }
+        app.Frame();
 
-        // Rendering
         ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
+                     clear_color.z * clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        // Update and Render additional Platform Windows
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
-            GLFWwindow* backup_current_context = glfwGetCurrentContext();
-            ImGui::UpdatePlatformWindows();
-            ImGui::RenderPlatformWindowsDefault();
-            glfwMakeContextCurrent(backup_current_context);
-        }
 
         glfwSwapBuffers(window);
     }
 
-    // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
