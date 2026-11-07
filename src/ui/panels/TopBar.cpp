@@ -24,7 +24,17 @@ namespace easyav::ui
         // 品牌标识
         const ImVec2 logoMin(origin.x, origin.y + S(16.0f));
         const ImVec2 logoMax(logoMin.x + S(44.0f), logoMin.y + S(44.0f));
-        drawList->AddRectFilled(logoMin, logoMax, ImGui::GetColorU32(c.accent), S(13.0f));
+        for (int layer = 3; layer >= 1; --layer)
+        {
+            const float spread = S(1.4f) * static_cast<float>(layer);
+            ImVec4 glow = c.accentGlow;
+            glow.w *= 0.30f;
+            drawList->AddRectFilled(ImVec2(logoMin.x - spread, logoMin.y - spread),
+                                    ImVec2(logoMax.x + spread, logoMax.y + spread),
+                                    ImGui::GetColorU32(glow), S(13.0f) + spread);
+        }
+        GradientRect(drawList, logoMin, logoMax, c.accentGradTop, c.accentGradBottom,
+                     S(13.0f));
 
         const ImVec2 avSize = ImGui::GetFont()->CalcTextSizeA(base * 1.02f, FLT_MAX, 0.0f, "AV");
         drawList->AddText(ImGui::GetFont(), base * 1.02f,
@@ -37,7 +47,8 @@ namespace easyav::ui
                           ImGui::GetColorU32(c.text), "EasyAV");
         drawList->AddText(ImGui::GetFont(), base * 0.78f,
                           ImVec2(logoMax.x + S(13.0f), origin.y + S(42.0f)),
-                          ImGui::GetColorU32(c.textMuted), "极简音视频工具 · 界面预览");
+                          ImGui::GetColorU32(c.textMuted),
+                          "编码转换 · 压缩 · 提取音频（全部在本机完成）");
 
         // 右上角操作
         const float buttonHeight = S(38.0f);
@@ -45,9 +56,41 @@ namespace easyav::ui
         const float fileWidth = S(108.0f);
         const float folderWidth = S(112.0f);
         const float settingsWidth = S(76.0f);
-        const float totalWidth = fileWidth + folderWidth + settingsWidth + gap * 2.0f;
+        const float pillWidth = S(132.0f);
+        const float pillGap = S(10.0f);
+        const float totalWidth = fileWidth + folderWidth + settingsWidth + gap * 2.0f
+                                 + pillWidth + pillGap;
         float x = origin.x + contentWidth - totalWidth;
         const float y = origin.y + (S(76.0f) - buttonHeight) * 0.5f;
+
+        // 引擎状态胶囊
+        const ToolStatus& tools = model.Task().Tools();
+        const bool engineReady = tools.ffmpegFound && tools.ffprobeFound;
+        const ImVec4 engineColor = engineReady ? c.success : c.warning;
+        const ImVec2 pillMin(x, origin.y + (S(76.0f) - S(32.0f)) * 0.5f);
+        const ImVec2 pillMax(pillMin.x + pillWidth, pillMin.y + S(32.0f));
+        drawList->AddRectFilled(pillMin, pillMax,
+                                ImGui::GetColorU32(engineReady ? c.successSoft : c.panelAlt),
+                                S(16.0f));
+        drawList->AddCircleFilled(ImVec2(pillMin.x + S(14.0f), pillMin.y + S(16.0f)),
+                                  S(4.0f), ImGui::GetColorU32(engineColor));
+        drawList->AddText(ImGui::GetFont(), base * 0.76f,
+                          ImVec2(pillMin.x + S(24.0f), pillMin.y + S(8.0f)),
+                          ImGui::GetColorU32(engineColor),
+                          engineReady ? "处理组件已就绪" : "处理组件未就绪");
+
+        ImGui::SetCursorScreenPos(pillMin);
+        ImGui::InvisibleButton("##engine_status", ImVec2(pillWidth, S(32.0f)));
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+            if (!engineReady && !tools.problem.empty())
+                ImGui::SetTooltip("%s", tools.problem.c_str());
+        }
+        if (ImGui::IsItemClicked())
+            model.Ui().showSettings = true;
+
+        x += pillWidth + pillGap;
 
         ImGui::BeginDisabled(model.Task().IsRunning());
 

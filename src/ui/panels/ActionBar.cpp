@@ -13,15 +13,36 @@ namespace easyav::ui
 {
     namespace
     {
+        const char* StartLabelFor(const AppModel& model, const TaskController& task)
+        {
+            if (task.HasFinished() || task.Phase() == TaskPhase::Canceled)
+                return "再转换一次";
+
+            return model.Convert().target == ConvertTarget::Audio ? "提取音频" : "开始转换";
+        }
+
         void StartCurrentTask(AppModel& model)
         {
-            std::vector<std::string> names;
-            names.reserve(model.Queue().Items().size());
-            for (const MediaItem& item : model.Queue().Items())
-                names.push_back(item.displayName);
+            if (model.Ui().scene != SceneId::Convert)
+            {
+                model.ShowToast("这个功能还在开发中，请先切换到「编码转换」",
+                                ToastLevel::Info);
+                return;
+            }
 
-            if (model.Task().Start(names))
-                model.ShowToast("开始处理（界面演示，尚未接入编码器）", ToastLevel::Info);
+            if (model.Task().Start(model.MakeTaskRequest()))
+            {
+                model.ShowToast(model.Convert().target == ConvertTarget::Audio
+                                    ? "开始提取音频"
+                                    : "开始转换",
+                                ToastLevel::Info);
+            }
+            else
+            {
+                const std::string& error = model.Task().StartErrorText();
+                if (!error.empty())
+                    model.ShowToast(error, ToastLevel::Warning);
+            }
         }
     }
 
@@ -30,6 +51,7 @@ namespace easyav::ui
         const UiColors& c = Colors();
         const float base = ImGui::GetFontSize();
         TaskController& task = model.Task();
+        const ToolStatus& tools = task.Tools();
 
         CardBegin("##action_bar", ImVec2(0.0f, S(120.0f)), ImVec2(S(18.0f), S(12.0f)));
 
@@ -58,14 +80,14 @@ namespace easyav::ui
         const float buttonWidth = S(164.0f);
         const float buttonHeight = S(40.0f);
         ImGui::SetCursorScreenPos(ImVec2(origin.x + width - buttonWidth, origin.y - S(2.0f)));
-        const bool canStart = !model.Queue().Empty() && !task.IsRunning();
-        ImGui::BeginDisabled(!canStart);
-        const char* startLabel = (task.HasFinished() || task.Phase() == TaskPhase::Canceled)
-                                     ? "重新开始"
-                                     : "开始处理";
-        if (PrimaryButton(startLabel, ImVec2(buttonWidth, buttonHeight)))
+        const bool canStart = model.Ui().scene == SceneId::Convert
+                              && !model.Queue().Empty() && !task.IsRunning()
+                              && tools.ffmpegFound;
+        if (GradientButton(StartLabelFor(model, task),
+                           ImVec2(buttonWidth, buttonHeight), canStart))
+        {
             StartCurrentTask(model);
-        ImGui::EndDisabled();
+        }
 
         float fraction = 0.0f;
         if (task.IsRunning())
@@ -76,42 +98,95 @@ namespace easyav::ui
             fraction = task.Progress();
 
         ImGui::SetCursorScreenPos(ImVec2(origin.x, origin.y + S(48.0f)));
-        ProgressBar("##global_progress", fraction, ImVec2(width, S(12.0f)), nullptr);
+        const char* overlay = nullptr;
+        std::string overlayText;
+        if (task.IsRunning() && task.Indeterminate())
+            overlayText = "处理中…";
+        else if (fraction > 0.0f || task.HasFinished())
+            overlayText = FormatPercent(fraction);
+
+        if (!overlayText.empty())
+            overlay = overlayText.c_str();
+
+        ProgressBar("##global_progress", fraction, ImVec2(width, S(12.0f)), overlay,
+                    task.IsRunning());
 
         char detail[256] = {};
         if (task.IsRunning())
         {
             const int current = std::min(task.CurrentFileIndex() + 1, task.FileCount());
             const double eta = task.EtaSeconds();
-            if (eta >= 0.0)
+            const char* failedSuffix =
+                task.FailedCount() > 0 ? "，有文件失败" : "";
+
+            if (task.Indeterminate())
             {
-                std::snprintf(detail, sizeof(detail), "%s · %d/%d · 已用 %s · 预计剩余 %s",
-                              FormatPercent(task.Progress()).c_str(), current, task.FileCount(),
-                              FormatClock(task.ElapsedSeconds()).c_str(), FormatClock(eta).c_str());
+                std::snprintf(detail, sizeof(detail),
+                              "%d/%d · 已用 %s · 剩余时间无法预估%s",
+                              current, task.FileCount(),
+                              FormatClock(task.ElapsedSeconds()).c_str(), failedSuffix);
+            }
+            else if (eta >= 0.0)
+            {
+                std::snprintf(detail, sizeof(detail),
+                              "%s · %d/%d · 已用 %s · 预计剩余 %s%s",
+                              FormatPercent(task.Progress()).c_str(), current,
+                              task.FileCount(),
+                              FormatClock(task.ElapsedSeconds()).c_str(),
+                              FormatClock(eta).c_str(), failedSuffix);
             }
             else
             {
-                std::snprintf(detail, sizeof(detail), "%s · %d/%d · 已用 %s",
-                              FormatPercent(task.Progress()).c_str(), current, task.FileCount(),
-                              FormatClock(task.ElapsedSeconds()).c_str());
+                std::snprintf(detail, sizeof(detail), "%s · %d/%d · 已用 %s%s",
+                              FormatPercent(task.Progress()).c_str(), current,
+                              task.FileCount(),
+                              FormatClock(task.ElapsedSeconds()).c_str(), failedSuffix);
             }
         }
         else if (task.HasFinished())
         {
-            std::snprintf(detail, sizeof(detail), "共 %d 个文件，全部处理完成，已保存到输出位置。", task.FileCount());
+            if (task.FailedCount() > 0)
+            {
+                std::snprintf(detail, sizeof(detail),
+                              "共 %d 个文件，完成 %d 个，%d 个失败。",
+                              task.FileCount(), task.SucceededCount(), task.FailedCount());
+            }
+            else
+            {
+                std::snprintf(detail, sizeof(detail),
+                              "共 %d 个文件，全部处理完成，已保存到输出位置。",
+                              task.FileCount());
+            }
         }
         else if (task.Phase() == TaskPhase::Canceled)
         {
             std::snprintf(detail, sizeof(detail), "已取消，进度停在 %s，可随时重新开始。",
                           FormatPercent(task.Progress()).c_str());
         }
+        else if (!tools.ffmpegFound)
+        {
+            std::snprintf(detail, sizeof(detail), "%s",
+                          tools.problem.c_str());
+        }
         else if (model.Queue().Empty())
         {
-            std::snprintf(detail, sizeof(detail), "先在左侧添加文件，再点“开始处理”。");
+            std::snprintf(detail, sizeof(detail), "先在左侧添加文件，再点“开始转换”。");
+        }
+        else if (model.Ui().scene != SceneId::Convert)
+        {
+            std::snprintf(detail, sizeof(detail),
+                          "当前场景还在开发中，可以先切换到「编码转换」处理文件。");
         }
         else
         {
-            std::snprintf(detail, sizeof(detail), "共 %d 个文件，准备就绪。", model.Queue().Count());
+            const ConvertSettings& convert = model.Convert();
+            const char* targetText = convert.target == ConvertTarget::Audio
+                                         ? "MP3（只要声音）"
+                                         : (convert.target == ConvertTarget::H265
+                                                ? "H.265"
+                                                : "H.264");
+            std::snprintf(detail, sizeof(detail), "共 %d 个文件，准备转换为 %s。",
+                          model.Queue().Count(), targetText);
         }
 
         const float detailWidth = task.IsRunning() ? width - S(110.0f) : width;
@@ -126,7 +201,7 @@ namespace easyav::ui
             if (SecondaryButton("取消", ImVec2(cancelWidth, S(30.0f))))
             {
                 task.Cancel();
-                model.ShowToast("已取消处理", ToastLevel::Warning);
+                model.ShowToast("正在取消…", ToastLevel::Info);
             }
         }
 

@@ -11,8 +11,24 @@ Release/
 
 # Visual Studio local files
 .vs/
+.IdentityService/
 *.user
 *.suo
 
+# Local agent settings
+.codebuddy/
+
+# Debug ASan build outputs
+DebugAsan/
+
 # ImGui runtime state
 imgui.ini
+
+# Local MVP packaging
+dist/
+
+# Bundled FFmpeg binaries (place locally; commit with git add -f if needed)
+assets/ffmpeg/*.exe
+assets/ffmpeg/*.dll
+assets/ffmpeg/bin/*.exe
+assets/ffmpeg/bin/*.dll

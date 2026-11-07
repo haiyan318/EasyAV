@@ -24,6 +24,16 @@ namespace easyav::ui
         ImVec4 danger;
         ImVec4 track;
         ImVec4 white;
+
+        // V0.2 视觉焕新：渐变、光晕与阴影（都随明暗主题切换）。
+        ImVec4 accentGradTop;
+        ImVec4 accentGradBottom;
+        ImVec4 accentGlow;
+        ImVec4 cardShadow;
+        ImVec4 cardHover;
+        ImVec4 selectedSoft;
+        ImVec4 successSoft;
+        ImVec4 dangerSoft;
     };
 
     const UiColors& Colors();

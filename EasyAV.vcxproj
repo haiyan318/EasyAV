@@ -100,6 +100,9 @@
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(ProjectDir)assets\ffmpeg" xcopy /E /I /Y "$(ProjectDir)assets\ffmpeg" "$(OutDir)assets\ffmpeg" &gt;nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -118,6 +121,9 @@
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(ProjectDir)assets\ffmpeg" xcopy /E /I /Y "$(ProjectDir)assets\ffmpeg" "$(OutDir)assets\ffmpeg" &gt;nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -142,6 +148,9 @@
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(ProjectDir)assets\ffmpeg" xcopy /E /I /Y "$(ProjectDir)assets\ffmpeg" "$(OutDir)assets\ffmpeg" &gt;nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -166,6 +175,9 @@
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(ProjectDir)assets\ffmpeg" xcopy /E /I /Y "$(ProjectDir)assets\ffmpeg" "$(OutDir)assets\ffmpeg" &gt;nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <!-- Dear ImGui core (docking branch), reused in-place from the sibling imgui-docking folder -->
@@ -183,15 +195,28 @@
     <ClCompile Include="src\core\Format.cpp" />
     <ClCompile Include="src\core\Text.cpp" />
     <ClCompile Include="src\model\AppModel.cpp" />
+    <ClCompile Include="src\model\ConvertMapping.cpp" />
     <ClCompile Include="src\model\MediaQueue.cpp" />
     <ClCompile Include="src\model\TaskController.cpp" />
+    <ClCompile Include="src\platform\AppPaths.cpp" />
+    <ClCompile Include="src\services\CommandLine.cpp" />
+    <ClCompile Include="src\services\ErrorFormatter.cpp" />
+    <ClCompile Include="src\services\FfmpegCommandBuilder.cpp" />
+    <ClCompile Include="src\services\FfmpegLocator.cpp" />
+    <ClCompile Include="src\services\FfmpegProcess.cpp" />
+    <ClCompile Include="src\services\FfprobeProbe.cpp" />
+    <ClCompile Include="src\services\Logger.cpp" />
+    <ClCompile Include="src\services\OutputNamer.cpp" />
+    <ClCompile Include="src\services\ProgressParser.cpp" />
+    <ClCompile Include="src\services\ProbeOutputParser.cpp" />
+    <ClCompile Include="src\services\TaskService.cpp" />
     <ClCompile Include="src\platform\FileDialogs.cpp" />
     <ClCompile Include="src\ui\Theme.cpp" />
     <ClCompile Include="src\ui\Widgets.cpp" />
     <ClCompile Include="src\ui\panels\ActionBar.cpp" />
     <ClCompile Include="src\ui\panels\BatchPanel.cpp" />
     <ClCompile Include="src\ui\panels\ClipPanel.cpp" />
-    <ClCompile Include="src\ui\panels\CompressPanel.cpp" />
+    <ClCompile Include="src\ui\panels\ConvertPanel.cpp" />
     <ClCompile Include="src\ui\panels\FilterPanel.cpp" />
     <ClCompile Include="src\ui\panels\QueuePanel.cpp" />
     <ClCompile Include="src\ui\panels\RecordPanel.cpp" />
@@ -210,12 +235,28 @@
     <ClInclude Include="..\imgui-docking\backends\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="src\App.h" />
     <ClInclude Include="src\core\Format.h" />
+    <ClInclude Include="src\core\ITaskRunner.h" />
+    <ClInclude Include="src\core\TaskContracts.h" />
     <ClInclude Include="src\core\Text.h" />
     <ClInclude Include="src\core\Types.h" />
     <ClInclude Include="src\model\AppModel.h" />
+    <ClInclude Include="src\model\ConvertMapping.h" />
     <ClInclude Include="src\model\MediaQueue.h" />
     <ClInclude Include="src\model\TaskController.h" />
     <ClInclude Include="src\model\TaskSettings.h" />
+    <ClInclude Include="src\platform\AppPaths.h" />
+    <ClInclude Include="src\services\CommandLine.h" />
+    <ClInclude Include="src\services\ErrorFormatter.h" />
+    <ClInclude Include="src\services\FfmpegCommandBuilder.h" />
+    <ClInclude Include="src\services\FfmpegLocator.h" />
+    <ClInclude Include="src\services\FfmpegProcess.h" />
+    <ClInclude Include="src\services\FfprobeProbe.h" />
+    <ClInclude Include="src\services\IMediaProbe.h" />
+    <ClInclude Include="src\services\Logger.h" />
+    <ClInclude Include="src\services\OutputNamer.h" />
+    <ClInclude Include="src\services\ProgressParser.h" />
+    <ClInclude Include="src\services\ProbeOutputParser.h" />
+    <ClInclude Include="src\services\TaskService.h" />
     <ClInclude Include="src\platform\FileDialogs.h" />
     <ClInclude Include="src\ui\Labels.h" />
     <ClInclude Include="src\ui\Theme.h" />
@@ -223,7 +264,7 @@
     <ClInclude Include="src\ui\panels\ActionBar.h" />
     <ClInclude Include="src\ui\panels\BatchPanel.h" />
     <ClInclude Include="src\ui\panels\ClipPanel.h" />
-    <ClInclude Include="src\ui\panels\CompressPanel.h" />
+    <ClInclude Include="src\ui\panels\ConvertPanel.h" />
     <ClInclude Include="src\ui\panels\FilterPanel.h" />
     <ClInclude Include="src\ui\panels\QueuePanel.h" />
     <ClInclude Include="src\ui\panels\RecordPanel.h" />
@@ -236,7 +277,7 @@
   <ItemGroup>
     <None Include="..\imgui-docking\misc\debuggers\imgui.natstepfilter" />
     <None Include="..\imgui-docking\misc\debuggers\imgui.natvis" />
-    <None Include="README.txt" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,7 +2,12 @@
 
 // 面向用户的文案映射（统一放在一处，避免各面板重复且口吻不一致）。
 
+#include "core/Format.h"
+#include "core/TaskContracts.h"
 #include "core/Types.h"
+#include "model/TaskSettings.h"
+
+#include <string>
 
 namespace easyav::ui
 {
@@ -10,7 +15,7 @@ namespace easyav::ui
     {
         switch (id)
         {
-        case SceneId::Compress: return "视频瘦身";
+        case SceneId::Convert:  return "编码转换";
         case SceneId::Clip:     return "剪辑拼接";
         case SceneId::Filter:   return "滤镜水印";
         case SceneId::Record:   return "录屏截图";
@@ -23,12 +28,130 @@ namespace easyav::ui
     {
         switch (id)
         {
-        case SceneId::Compress: return "压缩 · 转格式";
+        case SceneId::Convert:  return "转码 · 瘦身";
         case SceneId::Clip:     return "裁剪 · 合并";
         case SceneId::Filter:   return "旋转 · 水印";
         case SceneId::Record:   return "屏幕 · 摄像头";
         case SceneId::Batch:    return "一键套用";
         default:                return "";
+        }
+    }
+
+    inline const char* VideoCodecLabel(VideoCodec codec)
+    {
+        switch (codec)
+        {
+        case VideoCodec::H264: return "H.264";
+        case VideoCodec::H265: return "H.265";
+        case VideoCodec::None:
+        default:               return "仅音频";
+        }
+    }
+
+    // 把 ffprobe 的 codec_name 变成用户看得懂的名字。
+    inline std::string SourceCodecLabel(const std::string& codec)
+    {
+        if (codec.empty())
+            return "未知";
+
+        const std::string lower = ToLowerAscii(codec);
+        if (lower == "h264" || lower == "avc1" || lower == "avc")
+            return "H.264";
+        if (lower == "hevc" || lower == "h265" || lower == "hvc1" || lower == "hev1")
+            return "H.265";
+        if (lower == "av1" || lower == "av01")
+            return "AV1";
+        if (lower == "vp9")
+            return "VP9";
+        if (lower == "vp8")
+            return "VP8";
+        if (lower == "mpeg4")
+            return "MPEG-4";
+        if (lower == "mpeg2video")
+            return "MPEG-2";
+        if (lower == "flv1")
+            return "FLV(Sorenson)";
+        if (lower == "wmv3" || lower == "vc1")
+            return "WMV";
+        if (lower == "prores")
+            return "ProRes";
+        if (lower == "mjpeg")
+            return "MJPEG";
+        if (lower == "aac")
+            return "AAC";
+        if (lower == "mp3")
+            return "MP3";
+        if (lower == "opus")
+            return "Opus";
+        return ToUpperAscii(codec);
+    }
+
+    inline const char* ConvertTargetLabel(ConvertTarget target)
+    {
+        switch (target)
+        {
+        case ConvertTarget::H264:  return "H.264 通用";
+        case ConvertTarget::H265:  return "H.265 更小";
+        case ConvertTarget::Audio: return "只要声音";
+        default:                   return "";
+        }
+    }
+
+    inline const char* ConvertTargetSubtitle(ConvertTarget target)
+    {
+        switch (target)
+        {
+        case ConvertTarget::H264:  return "几乎所有播放器、手机和电视都能放";
+        case ConvertTarget::H265:  return "画质相近、体积更小；老设备可能打不开";
+        case ConvertTarget::Audio: return "输出 MP3，只保留声音";
+        default:                   return "";
+        }
+    }
+
+    inline const char* ConvertTargetTag(ConvertTarget target)
+    {
+        switch (target)
+        {
+        case ConvertTarget::H264:  return "推荐";
+        case ConvertTarget::H265:  return "更小";
+        case ConvertTarget::Audio: return "仅音频";
+        default:                   return "";
+        }
+    }
+
+    inline const char* ConvertTargetHint(ConvertTarget target)
+    {
+        switch (target)
+        {
+        case ConvertTarget::H264:
+            return "打不开的视频，换成 H.264 通常就能正常播放。";
+        case ConvertTarget::H265:
+            return "H.265 更省空间；如果转换后设备仍打不开，请改用 H.264。";
+        case ConvertTarget::Audio:
+            return "只导出声音，不保留画面；适合提取音乐、播客或背景音。";
+        default:
+            return "";
+        }
+    }
+
+    inline const char* ContainerLabel(TargetFormat format)
+    {
+        switch (format)
+        {
+        case TargetFormat::MKV: return "MKV 大文件";
+        case TargetFormat::MP4: return "MP4 最通用";
+        default:                return "";
+        }
+    }
+
+    inline const char* ContainerShort(TargetFormat format)
+    {
+        switch (format)
+        {
+        case TargetFormat::MKV: return "MKV";
+        case TargetFormat::MP4: return "MP4";
+        case TargetFormat::MP3: return "MP3";
+        default:                return "MP4";
         }
     }
 
@@ -130,6 +253,22 @@ namespace easyav::ui
         case 2:  return "原画";
         default: return "";
         }
+    }
+
+    inline const char* FormatUnsupportedHint(TargetFormat format)
+    {
+        return format == TargetFormat::GIF
+                   ? "GIF 动图暂未开放，请先选择 MP4、MKV 或 MP3。"
+                   : "";
+    }
+
+    inline const char* ToolStateLabel(const ToolStatus& tools)
+    {
+        if (!tools.ffmpegFound)
+            return "处理组件未就绪";
+        if (!tools.ffprobeFound)
+            return "时长分析不可用";
+        return "处理组件已就绪";
     }
 
     inline const char* KindLabel(MediaKind kind)

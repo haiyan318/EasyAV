@@ -1,7 +1,9 @@
 #include "App.h"
 
 #include "core/Text.h"
+#include "platform/AppPaths.h"
 #include "platform/FileDialogs.h"
+#include "services/Logger.h"
 #include "ui/Theme.h"
 #include "ui/Widgets.h"
 #include "ui/panels/ActionBar.h"
@@ -14,6 +16,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstdlib>
 #include <filesystem>
 
 namespace easyav
@@ -30,23 +33,81 @@ namespace easyav
 
     void App::Init()
     {
+        const std::string exeDir = platform::ExecutableDirUtf8();
+        services::Logger::Init(exeDir);
+        services::Logger::Info("EasyAV 启动，程序目录: "
+                               + (exeDir.empty() ? std::string("未知") : exeDir));
+
+        m_services.Initialize(exeDir, platform::CurrentDirUtf8());
+        const ToolStatus& tools = m_services.Tools();
+        if (!tools.ffmpegFound)
+        {
+            services::Logger::Warn("未找到处理组件: " + tools.problem);
+            m_model.ShowToast(tools.problem, ToastLevel::Warning);
+        }
+        else
+        {
+            services::Logger::Info("处理组件: " + tools.ffmpegPath + " 版本: " + tools.version);
+            if (!tools.ffprobeFound)
+            {
+                services::Logger::Warn(tools.problem);
+                m_model.ShowToast(tools.problem, ToastLevel::Warning);
+            }
+        }
+
+        m_model.Task().AttachRunner(&m_services);
+
         if (!ui::LoadFonts())
         {
             m_model.ShowToast("未找到中文字体，已改用内置字体", ToastLevel::Warning);
+            services::Logger::Warn("未找到中文字体，已回退到系统字体");
         }
+
+    }
+
+    void App::Shutdown()
+    {
+        m_services.Shutdown();
+        services::Logger::Info("EasyAV 正常退出");
+        services::Logger::Shutdown();
     }
 
     void App::Frame()
     {
+        std::vector<ProbeResult> probes;
+        m_services.DrainProbeResults(probes);
+        for (const ProbeResult& probe : probes)
+            m_model.ApplyProbeResult(probe.path, probe.info);
+
         // 最小化/卡顿恢复时避免一次推进过多进度。
         const float deltaSeconds = std::min(ImGui::GetIO().DeltaTime, 0.1f);
         m_model.Tick(deltaSeconds);
 
         if (m_model.Task().ConsumeCompleted())
         {
-            m_model.ShowToast("全部处理完成，输出文件已保存", ToastLevel::Success);
-            if (m_model.Output().openFolderWhenDone)
-                m_model.Ui().requestOpenOutputDir = true;
+            const int failed = m_model.Task().FailedCount();
+            services::Logger::Info("任务提示: 成功 "
+                                   + std::to_string(m_model.Task().SucceededCount())
+                                   + " 个，失败 " + std::to_string(failed) + " 个");
+            if (failed == 0)
+            {
+                m_model.ShowToast("全部处理完成，输出文件已保存", ToastLevel::Success);
+                if (m_model.Output().openFolderWhenDone)
+                    m_model.Ui().requestOpenOutputDir = true;
+            }
+            else
+            {
+                m_model.ShowToast("处理结束，部分文件没有成功", ToastLevel::Warning);
+            }
+        }
+
+        int shownFailures = 0;
+        for (const FileFailure& failure : m_model.Task().ConsumeFailures())
+        {
+            if (shownFailures >= 3)
+                break;
+            m_model.ShowToast(failure.userMessage, ToastLevel::Error);
+            ++shownFailures;
         }
 
         ProcessRequests();
@@ -119,6 +180,17 @@ namespace easyav
             return;
         }
         m_model.AddPaths(utf8Paths);
+        RequestProbes();
+    }
+
+    void App::RequestProbes()
+    {
+        std::vector<std::string> paths;
+        paths.reserve(m_model.Queue().Items().size());
+        for (const MediaItem& item : m_model.Queue().Items())
+            paths.push_back(item.path);
+
+        m_services.EnqueueProbe(paths);
     }
 
     void App::ProcessRequests()
@@ -130,7 +202,10 @@ namespace easyav
             ui.requestAddFiles = false;
             const std::vector<std::string> files = platform::PickMediaFiles();
             if (!files.empty())
+            {
                 m_model.AddPaths(files);
+                RequestProbes();
+            }
         }
 
         if (ui.requestAddFolder)
@@ -138,7 +213,10 @@ namespace easyav
             ui.requestAddFolder = false;
             const std::string folder = platform::PickFolder();
             if (!folder.empty())
+            {
                 m_model.AddPaths({ folder });
+                RequestProbes();
+            }
         }
 
         if (ui.requestPickWatermarkImage)

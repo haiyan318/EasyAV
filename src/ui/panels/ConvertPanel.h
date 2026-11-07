@@ -4,5 +4,5 @@
 
 namespace easyav::ui
 {
-    void DrawCompressPanel(AppModel& model);
+    void DrawConvertPanel(AppModel& model);
 }

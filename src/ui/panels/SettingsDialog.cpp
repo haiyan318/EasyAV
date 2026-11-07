@@ -34,12 +34,20 @@ namespace easyav::ui
             }
 
             ImGui::Dummy(ImVec2(0.0f, S(4.0f)));
-            ImGui::SetNextItemWidth(S(160.0f));
-            ImGui::InputText("文件名后缀", output.suffix, sizeof(output.suffix));
-            ImGui::SameLine(0.0f, S(12.0f));
-            ImGui::PushStyleColor(ImGuiCol_Text, c.textMuted);
-            ImGui::TextUnformatted("例如：旅行_压缩.mp4");
-            ImGui::PopStyleColor();
+            ImGui::Checkbox("按结果自动命名（推荐）", &output.autoSuffix);
+            if (output.autoSuffix)
+            {
+                Hint("会自动使用 _H264 / _H265 / _音频 后缀，避免不同结果互相覆盖。");
+            }
+            else
+            {
+                ImGui::SetNextItemWidth(S(160.0f));
+                ImGui::InputText("文件名后缀", output.suffix, sizeof(output.suffix));
+                ImGui::SameLine(0.0f, S(12.0f));
+                ImGui::PushStyleColor(ImGuiCol_Text, c.textMuted);
+                ImGui::TextUnformatted("例如：旅行_转换.mp4（留空会自动加序号）");
+                ImGui::PopStyleColor();
+            }
 
             ImGui::Dummy(ImVec2(0.0f, S(2.0f)));
             ImGui::Checkbox("处理完成后打开输出文件夹", &output.openFolderWhenDone);
@@ -88,9 +96,18 @@ namespace easyav::ui
         ImGui::Separator();
         ImGui::TextUnformatted("关于 EasyAV");
         ImGui::PushStyleColor(ImGuiCol_Text, c.textMuted);
-        ImGui::TextWrapped("版本 v0.1（界面预览）。当前版本只搭建了界面与交互，"
-                           "尚未接入 FFmpeg 处理引擎，点击“开始处理”只会演示进度。");
-        ImGui::TextWrapped("界面设计目标：让完全不懂视频的人，也能在 3 步内完成压缩、剪辑和提取音乐。");
+        ImGui::TextWrapped("版本 v0.2。可以真正处理文件：把 HEVC / AV1 / FLV 等常见编码转成 "
+                           "H.264（最兼容）或 H.265（更小），输出 MP4 / MKV，也能提取 MP3；"
+                           "需要时再打开“顺便压缩体积”。输出不会覆盖原文件。");
+        ImGui::TextWrapped("剪辑、滤镜、录屏仍在开发中。");
+        ImGui::TextWrapped("界面设计目标：让完全不懂视频的人，也能在 3 步内完成转换和提取音乐。");
+        ImGui::PopStyleColor();
+
+        const ToolStatus& tools = model.Task().Tools();
+        ImGui::PushStyleColor(ImGuiCol_Text,
+                              (tools.ffmpegFound && tools.ffprobeFound) ? c.success
+                                                                        : c.warning);
+        ImGui::TextUnformatted(ToolStateLabel(tools));
         ImGui::PopStyleColor();
 
         ImGui::Dummy(ImVec2(0.0f, S(8.0f)));

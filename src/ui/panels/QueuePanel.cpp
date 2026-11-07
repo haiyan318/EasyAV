@@ -138,51 +138,139 @@ namespace easyav::ui
                               ImVec2(rowWidth, rowHeight));
             const bool hovered = ImGui::IsItemHovered();
 
+            const bool activeRow = model.Task().IsRunning()
+                                   && model.Task().CurrentFileIndex() == i;
             ImDrawList* drawList = ImGui::GetWindowDrawList();
-            const ImU32 rowBg = hovered ? ImGui::GetColorU32(c.panelAlt)
-                                        : ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-            drawList->AddRectFilled(rowOrigin, ImVec2(rowOrigin.x + rowWidth, rowOrigin.y + rowHeight),
-                                    rowBg, 10.0f);
+            const ImVec2 rowMax(rowOrigin.x + rowWidth, rowOrigin.y + rowHeight);
 
-            const ImVec2 dotCenter(rowOrigin.x + S(14.0f), rowOrigin.y + rowHeight * 0.5f);
-            drawList->AddCircleFilled(dotCenter, S(4.5f), ImGui::GetColorU32(KindColor(item.kind)));
+            if (activeRow)
+            {
+                drawList->AddRectFilled(rowOrigin, rowMax,
+                                        ImGui::GetColorU32(c.selectedSoft), 10.0f);
+                drawList->AddRectFilled(rowOrigin, ImVec2(rowOrigin.x + S(3.0f), rowMax.y),
+                                        ImGui::GetColorU32(c.accent), S(2.0f));
+            }
+            else if (hovered)
+            {
+                drawList->AddRectFilled(rowOrigin, rowMax, ImGui::GetColorU32(c.panelAlt), 10.0f);
+            }
 
-            const float textX = rowOrigin.x + S(28.0f);
-            const float textWidth = std::max(rowWidth - S(64.0f), S(40.0f));
+            // 文件类型图标块
+            const ImVec2 tileCenter(rowOrigin.x + S(18.0f), rowOrigin.y + rowHeight * 0.5f);
+            drawList->AddRectFilled(ImVec2(tileCenter.x - S(11.0f), tileCenter.y - S(11.0f)),
+                                    ImVec2(tileCenter.x + S(11.0f), tileCenter.y + S(11.0f)),
+                                    ImGui::GetColorU32(c.panelAlt), S(7.0f));
+            drawList->AddCircleFilled(tileCenter, S(4.2f),
+                                      ImGui::GetColorU32(KindColor(item.kind)));
+
+            const float textX = rowOrigin.x + S(35.0f);
+            const float textWidth = std::max(rowWidth - S(74.0f), S(40.0f));
             const std::string name = Ellipsize(item.displayName, textWidth);
             drawList->AddText(ImGui::GetFont(), base,
                               ImVec2(textX, rowOrigin.y + S(10.0f)),
                               ImGui::GetColorU32(c.text), name.c_str());
 
+            std::string durationText = "时长待分析";
+            if (item.durationSec > 0.0)
+                durationText = FormatClock(item.durationSec);
+            else if (item.probed)
+                durationText = "时长未知";
+
+            std::string codecText = "编码未知";
+            if (item.hasVideo)
+                codecText = SourceCodecLabel(item.videoCodec);
+            else if (item.hasAudio)
+                codecText = SourceCodecLabel(item.audioCodec);
+
             char meta[192] = {};
             std::snprintf(meta, sizeof(meta), "%s · %s · %s · %s",
-                          item.format.c_str(), KindLabel(item.kind),
-                          FormatBytes(item.sizeBytes).c_str(),
-                          item.durationSec > 0.0 ? FormatClock(item.durationSec).c_str() : "时长待分析");
+                          item.format.c_str(), codecText.c_str(),
+                          FormatBytes(item.sizeBytes).c_str(), durationText.c_str());
             drawList->AddText(ImGui::GetFont(), base * 0.76f,
                               ImVec2(textX, rowOrigin.y + S(36.0f)),
-                              ImGui::GetColorU32(c.textMuted), meta);
+                              ImGui::GetColorU32(c.textMuted),
+                              Ellipsize(meta, textWidth).c_str());
 
-            // 移除按钮
-            ImGui::SetCursorScreenPos(ImVec2(rowOrigin.x + rowWidth - S(32.0f), rowOrigin.y + S(20.0f)));
-            ImGui::BeginDisabled(model.Task().IsRunning());
-            ImGui::InvisibleButton("##remove", ImVec2(S(24.0f), S(24.0f)));
-            const bool removeHovered = ImGui::IsItemHovered();
-            if (removeHovered)
-                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-            if (ImGui::IsItemClicked())
-                removeIndex = i;
-            ImGui::EndDisabled();
-            if (removeHovered)
+            if (activeRow)
             {
-                drawList->AddCircleFilled(ImVec2(rowOrigin.x + rowWidth - S(20.0f), rowOrigin.y + S(32.0f)),
-                                          S(13.0f), ImGui::GetColorU32(c.panelHover));
+                const float progress = std::clamp(model.Task().CurrentFileProgress(),
+                                                  0.0f, 1.0f);
+                drawList->AddRectFilled(
+                    ImVec2(rowOrigin.x + S(3.0f), rowMax.y - S(3.0f)),
+                    ImVec2(rowMax.x, rowMax.y), ImGui::GetColorU32(c.track), 0.0f);
+                drawList->AddRectFilled(
+                    ImVec2(rowOrigin.x + S(3.0f), rowMax.y - S(3.0f)),
+                    ImVec2(rowOrigin.x + S(3.0f)
+                               + (rowWidth - S(3.0f)) * std::max(progress, 0.02f),
+                           rowMax.y),
+                    ImGui::GetColorU32(c.accent), 0.0f);
             }
-            drawList->AddText(ImGui::GetFont(), base * 1.02f,
-                              ImVec2(rowOrigin.x + rowWidth - S(25.0f), rowOrigin.y + S(20.0f)),
-                              ImGui::GetColorU32(removeHovered ? c.danger : c.textMuted), "×");
 
-            ImGui::SetCursorScreenPos(ImVec2(rowOrigin.x, rowOrigin.y + rowHeight + rowGap));
+            if (hovered && item.probed)
+            {
+                ImGui::BeginTooltip();
+                if (item.width > 0 && item.height > 0)
+                    ImGui::Text("%d × %d", item.width, item.height);
+                ImGui::Text("视频：%s", item.hasVideo
+                                             ? SourceCodecLabel(item.videoCodec).c_str()
+                                             : "无");
+                ImGui::Text("音频：%s", item.hasAudio
+                                             ? SourceCodecLabel(item.audioCodec).c_str()
+                                             : "无");
+                ImGui::EndTooltip();
+            }
+
+            if (model.Task().IsRunning())
+            {
+                if (activeRow)
+                {
+                    const char* badgeText = "处理中";
+                    const float badgeFont = base * 0.70f;
+                    const ImVec2 textSize =
+                        ImGui::GetFont()->CalcTextSizeA(badgeFont, FLT_MAX, 0.0f, badgeText);
+                    const ImVec2 badgeMin(rowOrigin.x + rowWidth - textSize.x - S(24.0f),
+                                          rowOrigin.y + S(21.0f));
+                    const ImVec2 badgeMax(rowOrigin.x + rowWidth - S(10.0f),
+                                          rowOrigin.y + S(21.0f) + S(22.0f));
+                    drawList->AddRectFilled(badgeMin, badgeMax,
+                                            ImGui::GetColorU32(c.accentSoft), S(11.0f));
+                    drawList->AddText(ImGui::GetFont(), badgeFont,
+                                      ImVec2(badgeMin.x + S(7.0f),
+                                             badgeMin.y + (S(22.0f) - textSize.y) * 0.5f),
+                                      ImGui::GetColorU32(c.accent), badgeText);
+                }
+            }
+            else
+            {
+                // 移除按钮：只在鼠标经过时显示，避免列表显得杂乱。
+                ImGui::SetCursorScreenPos(
+                    ImVec2(rowOrigin.x + rowWidth - S(32.0f), rowOrigin.y + S(20.0f)));
+                ImGui::InvisibleButton("##remove", ImVec2(S(24.0f), S(24.0f)));
+                const bool removeHovered = ImGui::IsItemHovered();
+                if (removeHovered)
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+                if (ImGui::IsItemClicked())
+                    removeIndex = i;
+
+                if (removeHovered || hovered)
+                {
+                    if (removeHovered)
+                    {
+                        drawList->AddCircleFilled(
+                            ImVec2(rowOrigin.x + rowWidth - S(20.0f), rowOrigin.y + S(32.0f)),
+                            S(13.0f), ImGui::GetColorU32(c.panelHover));
+                    }
+                    drawList->AddText(
+                        ImGui::GetFont(), base * 1.02f,
+                        ImVec2(rowOrigin.x + rowWidth - S(25.0f), rowOrigin.y + S(20.0f)),
+                        ImGui::GetColorU32(removeHovered ? c.danger : c.textMuted), "×");
+                }
+            }
+
+            // ImGui 1.92 起，SetCursorScreenPos 后必须提交 item；
+            // 最后一行不再手动推进，避免 EndChild 时触发边界断言。
+            if (i + 1 < static_cast<int>(items.size()))
+                ImGui::SetCursorScreenPos(ImVec2(rowOrigin.x, rowOrigin.y + rowHeight + rowGap));
             ImGui::PopID();
         }
 

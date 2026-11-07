@@ -25,20 +25,27 @@ namespace easyav::ui
         ImGui::PopStyleColor();
         ImGui::Dummy(ImVec2(0.0f, S(2.0f)));
 
-        const auto& compress = model.Compress();
+        const auto& convert = model.Convert();
         const auto& filter = model.Filter();
-        Badge(FormatLabel(compress.format), c.accentSoft, c.accent);
+        Badge(ConvertTargetLabel(convert.target), c.accentSoft, c.accent);
         ImGui::SameLine(0.0f, S(6.0f));
-        Badge(QualityLabel(compress.quality), c.panelAlt, c.text);
+        Badge(convert.target == ConvertTarget::Audio
+                  ? "MP3"
+                  : ContainerShort(convert.container),
+              c.panelAlt, c.text);
         ImGui::SameLine(0.0f, 6.0f);
-        Badge(compress.useGpuAccel ? "显卡加速" : "CPU 处理", c.panelAlt, c.text);
+        Badge(convert.slim ? QualityLabel(convert.slimQuality) : "保持画质",
+              c.panelAlt, c.text);
+        ImGui::SameLine(0.0f, 6.0f);
+        Badge(convert.useGpuAccel ? "显卡加速" : "CPU 处理", c.panelAlt, c.text);
         ImGui::SameLine(0.0f, 6.0f);
         Badge(WatermarkLabel(filter.watermark), c.panelAlt, c.text);
 
         ImGui::Dummy(ImVec2(0.0f, S(4.0f)));
         char summary[256] = {};
-        std::snprintf(summary, sizeof(summary), "视频瘦身 · %s · %s · %s",
-                      QualityLabel(compress.quality), FormatShort(compress.format),
+        std::snprintf(summary, sizeof(summary), "编码转换 · %s · %s · %s",
+                      ConvertTargetLabel(convert.target),
+                      convert.slim ? QualityLabel(convert.slimQuality) : "保持画质",
                       WatermarkLabel(filter.watermark));
         Hint(summary);
         CardEnd();

@@ -77,8 +77,8 @@ int main(int, char**)
 #endif
 
     const float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
-    GLFWwindow* window = glfwCreateWindow(static_cast<int>(1280 * main_scale),
-                                          static_cast<int>(820 * main_scale),
+    GLFWwindow* window = glfwCreateWindow(static_cast<int>(1024 * main_scale),
+                                          static_cast<int>(680 * main_scale),
                                           "EasyAV · 极简音视频工具", nullptr, nullptr);
     if (window == nullptr)
         return 1;
@@ -145,6 +145,8 @@ int main(int, char**)
 
         glfwSwapBuffers(window);
     }
+
+    app.Shutdown();
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

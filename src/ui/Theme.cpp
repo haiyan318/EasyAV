@@ -38,14 +38,14 @@ namespace easyav::ui
         ImGuiStyle& style = ImGui::GetStyle();
 
         style.WindowPadding = ImVec2(16.0f, 16.0f);
-        style.WindowRounding = 14.0f;
+        style.WindowRounding = 16.0f;
         style.WindowBorderSize = 0.0f;
-        style.ChildRounding = 12.0f;
+        style.ChildRounding = 14.0f;
         style.ChildBorderSize = 1.0f;
-        style.PopupRounding = 12.0f;
+        style.PopupRounding = 14.0f;
         style.PopupBorderSize = 1.0f;
         style.FramePadding = ImVec2(12.0f, 8.0f);
-        style.FrameRounding = 9.0f;
+        style.FrameRounding = 10.0f;
         style.FrameBorderSize = 0.0f;
         style.ItemSpacing = ImVec2(10.0f, 10.0f);
         style.ItemInnerSpacing = ImVec2(8.0f, 6.0f);
@@ -68,45 +68,59 @@ namespace easyav::ui
     {
         if (dark)
         {
-            g_colors = UiColors{
-                Rgb(20, 22, 27),
-                Rgb(30, 33, 40),
-                Rgb(37, 41, 49),
-                Rgb(46, 51, 60),
-                Rgb(55, 60, 71),
-                Rgb(232, 236, 241),
-                Rgb(160, 169, 182),
-                Rgb(74, 139, 255),
-                Rgb(93, 154, 255),
-                Rgb(52, 118, 235),
-                Rgb(37, 56, 92),
-                Rgb(62, 189, 131),
-                Rgb(246, 174, 60),
-                Rgb(242, 102, 102),
-                Rgb(54, 59, 69),
-                Rgb(255, 255, 255)
-            };
+            g_colors.bg = Rgb(19, 21, 26);
+            g_colors.panel = Rgb(29, 32, 39);
+            g_colors.panelAlt = Rgb(36, 40, 48);
+            g_colors.panelHover = Rgb(45, 50, 60);
+            g_colors.border = Rgb(55, 60, 71);
+            g_colors.text = Rgb(232, 236, 241);
+            g_colors.textMuted = Rgb(160, 169, 182);
+            g_colors.accent = Rgb(74, 139, 255);
+            g_colors.accentHover = Rgb(93, 154, 255);
+            g_colors.accentActive = Rgb(52, 118, 235);
+            g_colors.accentSoft = Rgb(37, 56, 92);
+            g_colors.success = Rgb(62, 189, 131);
+            g_colors.warning = Rgb(246, 174, 60);
+            g_colors.danger = Rgb(242, 102, 102);
+            g_colors.track = Rgb(54, 59, 69);
+            g_colors.white = Rgb(255, 255, 255);
+
+            g_colors.accentGradTop = Rgb(101, 160, 255);
+            g_colors.accentGradBottom = Rgb(63, 122, 240);
+            g_colors.accentGlow = Rgb(74, 139, 255, 0.30f);
+            g_colors.cardShadow = Rgb(0, 0, 0, 0.38f);
+            g_colors.cardHover = Rgb(73, 81, 95);
+            g_colors.selectedSoft = Rgb(74, 139, 255, 0.14f);
+            g_colors.successSoft = Rgb(62, 189, 131, 0.16f);
+            g_colors.dangerSoft = Rgb(242, 102, 102, 0.16f);
         }
         else
         {
-            g_colors = UiColors{
-                Rgb(244, 246, 249),
-                Rgb(255, 255, 255),
-                Rgb(247, 249, 252),
-                Rgb(237, 241, 247),
-                Rgb(226, 231, 238),
-                Rgb(30, 38, 52),
-                Rgb(107, 116, 132),
-                Rgb(47, 115, 241),
-                Rgb(36, 99, 224),
-                Rgb(27, 82, 192),
-                Rgb(229, 238, 255),
-                Rgb(22, 163, 103),
-                Rgb(242, 158, 33),
-                Rgb(230, 76, 76),
-                Rgb(229, 233, 240),
-                Rgb(255, 255, 255)
-            };
+            g_colors.bg = Rgb(242, 245, 250);
+            g_colors.panel = Rgb(255, 255, 255);
+            g_colors.panelAlt = Rgb(246, 249, 253);
+            g_colors.panelHover = Rgb(236, 241, 249);
+            g_colors.border = Rgb(224, 230, 239);
+            g_colors.text = Rgb(28, 36, 50);
+            g_colors.textMuted = Rgb(106, 116, 132);
+            g_colors.accent = Rgb(45, 112, 240);
+            g_colors.accentHover = Rgb(62, 128, 252);
+            g_colors.accentActive = Rgb(33, 92, 210);
+            g_colors.accentSoft = Rgb(228, 238, 255);
+            g_colors.success = Rgb(20, 158, 100);
+            g_colors.warning = Rgb(240, 156, 32);
+            g_colors.danger = Rgb(226, 72, 72);
+            g_colors.track = Rgb(227, 232, 240);
+            g_colors.white = Rgb(255, 255, 255);
+
+            g_colors.accentGradTop = Rgb(84, 146, 255);
+            g_colors.accentGradBottom = Rgb(41, 104, 232);
+            g_colors.accentGlow = Rgb(45, 112, 240, 0.26f);
+            g_colors.cardShadow = Rgb(28, 44, 78, 0.10f);
+            g_colors.cardHover = Rgb(203, 214, 231);
+            g_colors.selectedSoft = Rgb(45, 112, 240, 0.09f);
+            g_colors.successSoft = Rgb(20, 158, 100, 0.13f);
+            g_colors.dangerSoft = Rgb(226, 72, 72, 0.13f);
         }
 
         const UiColors& c = g_colors;

@@ -18,6 +18,9 @@ namespace easyav
         // 递归扫描文件夹，返回成功数量，并累加被跳过的数量。
         int AddDirectory(const std::string& utf8Dir, int* skipped);
 
+        // 探测结果回写：ok=false 时标记为“时长未知”，但不移除文件。
+        void SetProbedInfo(const std::string& utf8Path, const MediaInfo& info);
+
         void RemoveAt(int index);
         void Clear();
 

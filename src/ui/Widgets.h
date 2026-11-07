@@ -19,6 +19,28 @@ namespace easyav::ui
     bool SecondaryButton(const char* label, const ImVec2& size = ImVec2(0.0f, 0.0f));
     bool ChoiceChip(const char* label, bool selected, const ImVec2& size = ImVec2(0.0f, 0.0f));
 
+    // 渐变主按钮：enabled=false 时自绘为不可用状态（自绘控件不受 BeginDisabled 调色影响）。
+    bool GradientButton(const char* label, const ImVec2& size, bool enabled = true);
+
+    enum class OptionIcon
+    {
+        Shield = 0,
+        Feather,
+        Music
+    };
+
+    // 大号可选卡片：标题 + 一句话说明 + 右上角标签。
+    bool OptionCard(const char* id, const char* title, const char* subtitle,
+                    const char* tag, bool selected, const ImVec2& size,
+                    OptionIcon icon);
+
+    // 带圆形序号的步骤标题（1/2/3）。
+    void StepHeader(int index, const char* title, const char* hint = nullptr);
+
+    // 竖直渐变填充；圆角用逐行内缩精确绘制。
+    void GradientRect(ImDrawList* drawList, const ImVec2& min, const ImVec2& max,
+                      const ImVec4& top, const ImVec4& bottom, float rounding);
+
     bool ToggleSwitch(const char* label, bool* value);
 
     void CardBegin(const char* id, const ImVec2& size, const ImVec2& padding = ImVec2(16.0f, 16.0f));
@@ -26,7 +48,8 @@ namespace easyav::ui
 
     void Badge(const char* text, const ImVec4& background, const ImVec4& foreground);
 
-    void ProgressBar(const char* id, float fraction, const ImVec2& size, const char* overlay = nullptr);
+    void ProgressBar(const char* id, float fraction, const ImVec2& size,
+                     const char* overlay = nullptr, bool animated = false);
     bool QualitySlider(const char* id, float* value, float width);
     bool TimelineRangeSlider(const char* id, float* startPct, float* endPct, float width,
                              const char* startText, const char* endText);

@@ -22,6 +22,9 @@
     <Filter Include="src\ui\panels">
       <UniqueIdentifier>{A1B2C3D4-0006-4E00-9000-000000000006}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\services">
+      <UniqueIdentifier>{A1B2C3D4-0007-4E00-9000-000000000007}</UniqueIdentifier>
+    </Filter>
     <Filter Include="sources">
       <UniqueIdentifier>{B47D2F60-9A18-4C35-8D7E-2F61B0A4C9E3}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
@@ -61,11 +64,50 @@
     <ClCompile Include="src\model\AppModel.cpp">
       <Filter>src\model</Filter>
     </ClCompile>
+    <ClCompile Include="src\model\ConvertMapping.cpp">
+      <Filter>src\model</Filter>
+    </ClCompile>
     <ClCompile Include="src\model\MediaQueue.cpp">
       <Filter>src\model</Filter>
     </ClCompile>
     <ClCompile Include="src\model\TaskController.cpp">
       <Filter>src\model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\AppPaths.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\CommandLine.cpp">
+      <Filter>src\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\ErrorFormatter.cpp">
+      <Filter>src\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\FfmpegCommandBuilder.cpp">
+      <Filter>src\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\FfmpegLocator.cpp">
+      <Filter>src\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\FfmpegProcess.cpp">
+      <Filter>src\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\FfprobeProbe.cpp">
+      <Filter>src\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\Logger.cpp">
+      <Filter>src\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\OutputNamer.cpp">
+      <Filter>src\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\ProgressParser.cpp">
+      <Filter>src\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\ProbeOutputParser.cpp">
+      <Filter>src\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\TaskService.cpp">
+      <Filter>src\services</Filter>
     </ClCompile>
     <ClCompile Include="src\platform\FileDialogs.cpp">
       <Filter>src\platform</Filter>
@@ -85,7 +127,7 @@
     <ClCompile Include="src\ui\panels\ClipPanel.cpp">
       <Filter>src\ui\panels</Filter>
     </ClCompile>
-    <ClCompile Include="src\ui\panels\CompressPanel.cpp">
+    <ClCompile Include="src\ui\panels\ConvertPanel.cpp">
       <Filter>src\ui\panels</Filter>
     </ClCompile>
     <ClCompile Include="src\ui\panels\FilterPanel.cpp">
@@ -138,6 +180,12 @@
     <ClInclude Include="src\core\Format.h">
       <Filter>src\core</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\ITaskRunner.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\TaskContracts.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
     <ClInclude Include="src\core\Text.h">
       <Filter>src\core</Filter>
     </ClInclude>
@@ -145,6 +193,9 @@
       <Filter>src\core</Filter>
     </ClInclude>
     <ClInclude Include="src\model\AppModel.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\ConvertMapping.h">
       <Filter>src\model</Filter>
     </ClInclude>
     <ClInclude Include="src\model\MediaQueue.h">
@@ -155,6 +206,45 @@
     </ClInclude>
     <ClInclude Include="src\model\TaskSettings.h">
       <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\AppPaths.h">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\CommandLine.h">
+      <Filter>src\services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\ErrorFormatter.h">
+      <Filter>src\services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\FfmpegCommandBuilder.h">
+      <Filter>src\services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\FfmpegLocator.h">
+      <Filter>src\services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\FfmpegProcess.h">
+      <Filter>src\services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\FfprobeProbe.h">
+      <Filter>src\services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\IMediaProbe.h">
+      <Filter>src\services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\Logger.h">
+      <Filter>src\services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\OutputNamer.h">
+      <Filter>src\services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\ProgressParser.h">
+      <Filter>src\services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\ProbeOutputParser.h">
+      <Filter>src\services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\services\TaskService.h">
+      <Filter>src\services</Filter>
     </ClInclude>
     <ClInclude Include="src\platform\FileDialogs.h">
       <Filter>src\platform</Filter>
@@ -177,7 +267,7 @@
     <ClInclude Include="src\ui\panels\ClipPanel.h">
       <Filter>src\ui\panels</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\panels\CompressPanel.h">
+    <ClInclude Include="src\ui\panels\ConvertPanel.h">
       <Filter>src\ui\panels</Filter>
     </ClInclude>
     <ClInclude Include="src\ui\panels\FilterPanel.h">
@@ -209,7 +299,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="README.txt" />
+    <None Include="README.md" />
     <None Include="..\imgui-docking\misc\debuggers\imgui.natvis">
       <Filter>imgui</Filter>
     </None>

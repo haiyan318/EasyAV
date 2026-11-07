@@ -154,6 +154,37 @@ namespace easyav
         return added;
     }
 
+    void MediaQueue::SetProbedInfo(const std::string& utf8Path, const MediaInfo& info)
+    {
+        for (MediaItem& item : m_items)
+        {
+            if (item.path != utf8Path)
+                continue;
+
+            item.probed = true;
+            if (!info.ok)
+            {
+                item.durationSec = 0.0;
+                item.width = 0;
+                item.height = 0;
+                item.videoCodec.clear();
+                item.audioCodec.clear();
+                item.hasVideo = false;
+                item.hasAudio = false;
+                return;
+            }
+
+            item.durationSec = info.durationSec > 0.0 ? info.durationSec : 0.0;
+            item.width = info.width;
+            item.height = info.height;
+            item.videoCodec = info.videoCodec;
+            item.audioCodec = info.audioCodec;
+            item.hasVideo = info.hasVideo;
+            item.hasAudio = info.hasAudio;
+            return;
+        }
+    }
+
     void MediaQueue::RemoveAt(int index)
     {
         if (index < 0 || index >= Count())

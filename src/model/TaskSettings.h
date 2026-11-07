@@ -7,10 +7,20 @@
 
 namespace easyav
 {
-    struct CompressSettings
+    // 用户想要的结果：最兼容的视频 / 更小的视频 / 只要声音。
+    enum class ConvertTarget
     {
-        float quality = 0.55f; // 0 = 体积优先，1 = 画质优先
-        TargetFormat format = TargetFormat::MP4;
+        H264 = 0,
+        H265,
+        Audio
+    };
+
+    struct ConvertSettings
+    {
+        ConvertTarget target = ConvertTarget::H264; // 默认最兼容
+        TargetFormat container = TargetFormat::MP4; // 仅视频目标使用：MP4 / MKV
+        bool slim = false;                          // 顺便压缩体积
+        float slimQuality = 0.55f;                  // 0 = 体积优先，1 = 画质优先
         bool useGpuAccel = true;
         int resolutionIndex = 0; // 0 保持原样 / 1 1080p / 2 720p / 3 480p
         int frameRateIndex = 0;  // 0 保持原样 / 1 30 帧 / 2 24 帧
@@ -53,13 +63,14 @@ namespace easyav
     {
         bool sameAsSource = true;
         char outputDir[512] = {};
-        char suffix[64] = "_压缩";
+        bool autoSuffix = true;
+        char suffix[64] = "_转换";
         bool openFolderWhenDone = false;
     };
 
     struct UiState
     {
-        SceneId scene = SceneId::Compress;
+        SceneId scene = SceneId::Convert;
         bool showSettings = false;
         bool darkTheme = false;
 

@@ -4,6 +4,7 @@
 // UI 面板只读写这里的数据，不互相引用；
 // 平台/业务能力以后通过接口注入，避免面板直接依赖具体实现。
 
+#include "core/TaskContracts.h"
 #include "model/MediaQueue.h"
 #include "model/TaskController.h"
 #include "model/TaskSettings.h"
@@ -19,8 +20,8 @@ namespace easyav
         MediaQueue& Queue() { return m_queue; }
         const MediaQueue& Queue() const { return m_queue; }
 
-        CompressSettings& Compress() { return m_compress; }
-        const CompressSettings& Compress() const { return m_compress; }
+        ConvertSettings& Convert() { return m_convert; }
+        const ConvertSettings& Convert() const { return m_convert; }
 
         ClipSettings& Clip() { return m_clip; }
         const ClipSettings& Clip() const { return m_clip; }
@@ -41,6 +42,10 @@ namespace easyav
         const TaskController& Task() const { return m_task; }
 
         void AddPaths(const std::vector<std::string>& utf8Paths);
+        void ApplyProbeResult(const std::string& utf8Path, const MediaInfo& info);
+
+        // 把队列与当前设置拍成快照，交给 TaskController/TaskService。
+        TaskRequest MakeTaskRequest() const;
         void Tick(float deltaSeconds);
 
         void ShowToast(std::string text, ToastLevel level = ToastLevel::Info);
@@ -53,7 +58,7 @@ namespace easyav
 
     private:
         MediaQueue m_queue;
-        CompressSettings m_compress;
+        ConvertSettings m_convert;
         ClipSettings m_clip;
         FilterSettings m_filter;
         RecordSettings m_record;

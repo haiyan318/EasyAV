@@ -2,10 +2,12 @@
 
 #include "core/Format.h"
 #include "core/Text.h"
+#include "model/ConvertMapping.h"
 
 #include <algorithm>
 #include <cstdio>
 #include <filesystem>
+#include <utility>
 
 namespace easyav
 {
@@ -38,6 +40,30 @@ namespace easyav
             std::snprintf(message, sizeof(message), "没有可添加的文件（重复或不支持）");
 
         ShowToast(message, added > 0 ? ToastLevel::Success : ToastLevel::Warning);
+    }
+
+    TaskRequest AppModel::MakeTaskRequest() const
+    {
+        TaskRequest request;
+        request.options = BuildTaskOptions(m_convert, m_output, ResolvedOutputFolder());
+
+        request.items.reserve(m_queue.Items().size());
+        for (const MediaItem& item : m_queue.Items())
+        {
+            TaskItem taskItem;
+            taskItem.path = item.path;
+            taskItem.displayName = item.displayName;
+            taskItem.durationSec = item.durationSec;
+            taskItem.kind = item.kind;
+            request.items.push_back(std::move(taskItem));
+        }
+
+        return request;
+    }
+
+    void AppModel::ApplyProbeResult(const std::string& utf8Path, const MediaInfo& info)
+    {
+        m_queue.SetProbedInfo(utf8Path, info);
     }
 
     void AppModel::Tick(float deltaSeconds)
@@ -73,23 +99,7 @@ namespace easyav
         if (total == 0)
             return 0;
 
-        double factor = 0.20 + 0.72 * static_cast<double>(m_compress.quality);
-        switch (m_compress.format)
-        {
-        case TargetFormat::MP3:
-            factor = 0.08;
-            break;
-        case TargetFormat::GIF:
-            factor = 1.40;
-            break;
-        case TargetFormat::MKV:
-            factor *= 1.05;
-            break;
-        case TargetFormat::MP4:
-        default:
-            break;
-        }
-
+        const double factor = EstimateSizeFactor(m_convert);
         return static_cast<unsigned long long>(static_cast<double>(total) * factor);
     }
 
